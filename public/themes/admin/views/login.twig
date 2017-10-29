@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% block metadata %}
+        {% include "admin::partials/metadata" %}
+    {% endblock %}
+
+    {{ theme_asset('admin::bootstrap/dist/css/bootstrap.min.css') | css_tag }}
+    {{ asset('plugins/bootstrap-extension/css/bootstrap-extension.css') | css_tag }}
+
+    <!-- animation CSS -->
+    {{ theme_asset('admin::css/animate.css') | css_tag }}
+
+    <!-- Custom CSS -->
+    {{ theme_asset('admin::css/style.css') | css_tag }}
+
+    <!-- color CSS -->
+    {{ theme_asset('admin::css/colors/default-dark.css') | css_tag }}
+
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+
+</head>
+
+<body>
+{% set Logo         = call_helpers_two('getSettingInfo', config_get('app.setting_id'),'logo') %}
+{% set PathImage    = call_helpers('getPathLogo') %}
+{% set UrlLogo      = call_helpers_two('get_GenerateLinkImageUrl', PathImage, Logo) %}
+
+
+<!-- Preloader -->
+<div class="preloader">
+    <div class="cssload-speeding-wheel"></div>
+</div>
+
+<section id="wrapper" class="login-register">
+    <div class="login-box">
+        <div class="white-box">
+
+            {% if errors.any %}
+                {% for error in errors.all %}
+                    <div class="alert alert-danger alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+
+            <form class="form-horizontal form-material" id="loginform" action="{{ route('login_act') }}" method="post">
+                {{ csrf_field() }}
+                <img src="{{ UrlLogo }}" class="img-responsive">
+                <br>
+                <div class="form-group ">
+                    <div class="col-xs-12">
+                        <input class="form-control" type="text" required="" placeholder="Username" name="email" id="email"  value="{{ old('email') }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-xs-12">
+                        <input class="form-control" type="password" required="" placeholder="Password" name="password" id="password">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12" align="center">
+                        <div class="g-recaptcha" data-sitekey="6LcIujQUAAAAAAsw3msr-m3I1pOtvYyJQCUynhL_"></div>
+                        {% if (errors.has('g-recaptcha')) %}<div class="form-control-feedback"> {{ errors.first('g-recaptcha') }} </div>{% endif %}
+                    </div>
+                </div>
+                <div class="form-group text-center m-t-20">
+                    <div class="col-xs-12">
+                        <button class="btn btn-info btn-lg btn-block text-uppercase waves-effect waves-light" type="submit">Log In</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+
+
+<!-- jQuery -->
+{{ asset('plugins/jquery/dist/jquery.min.js')| script_tag }}
+<!-- Bootstrap Core JavaScript -->
+{{ theme_asset('admin::bootstrap/dist/js/tether.min.js')| script_tag }}
+{{ theme_asset('admin::bootstrap/dist/js/bootstrap.min.js')| script_tag }}
+{{ asset('plugins/bootstrap-extension/js/bootstrap-extension.min.js')| script_tag }}
+<!-- Menu Plugin JavaScript -->
+{{ asset('plugins/sidebar-nav/dist/sidebar-nav.min.js')| script_tag }}
+<!--slimscroll JavaScript -->
+{{ theme_asset('admin::js/jquery.slimscroll.js')| script_tag }}
+<!--Wave Effects -->
+{{ theme_asset('admin::js/waves.js')| script_tag }}
+<!-- Custom Theme JavaScript -->
+{{ theme_asset('admin::js/custom.min.js')| script_tag }}
+<!--Style Switcher -->
+{{ asset('plugins/styleswitcher/jQuery.style.switcher.js')| script_tag }}
+
+</body>
+
+</html>

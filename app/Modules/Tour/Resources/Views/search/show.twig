@@ -1,0 +1,217 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/css/select2.min.css')| css_tag }}
+    {{ asset('plugins/select2/css/select2-bootstrap.min.css')| css_tag }}
+
+    {{ asset('plugins/multiselect/css/multi-select.css')| css_tag }}
+
+    {{ asset('plugins/footable/css/footable.core.css') | css_tag }}
+
+    {{ asset('plugins/owl.carousel/owl.carousel.min.css') | css_tag }}
+    {{ asset('plugins/owl.carousel/owl.theme.default.css') | css_tag }}
+
+{% endblock %}
+
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title"><i class="ti ti-shopping-cart"></i> {{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li class="active">{{ MenuActive }}</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if session('ScsMsg') %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading"><i class="fa fa-search"></i> {{ MenuDescription }}
+                    <div class="pull-right">
+                        <a href="#" data-perform="panel-collapse"><i class="ti-minus"></i></a>
+                    </div>
+                </div>
+                <div class="panel-wrapper collapse in" aria-expanded="true">
+                    <div class="panel-body">
+                        <form class="form-material form-horizontal" action="{{ route('tour_search_action') }}" id="form_{{ form_name }}" method="post">
+                            {{ csrf_field() }}
+
+                            <!-- TYPE -->
+                            <div class="form-group {% if (errors.has('type')) %}has-danger{% endif %}">
+                                <select name="type" class="form-control select2" id="type">
+                                    {% set ListType = call_helpers('get_ListType') %}
+                                    {% for key,value in ListType %}
+                                        <option value="{{ key }}" {{ Type == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if (errors.has('type')) %}<div class="form-control-feedback"> {{ errors.first('type') }} </div>{% endif %}
+                            </div>
+                            <!-- END TYPE -->
+
+                            <div id="filter" style="display: {{ Block }};">
+                                <!-- REGION -->
+                                <div class="form-group {% if (errors.has('region')) %}has-danger{% endif %}">
+                                    <select name="region" class="form-control select2" id="region">
+                                        {% set ListRegion = call_helpers('get_ListRegion') %}
+                                        {% for key,value in ListRegion %}
+                                            <option value="{{ key }}" {{ Region == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if (errors.has('region')) %}<div class="form-control-feedback"> {{ errors.first('region') }} </div>{% endif %}
+                                </div>
+                                <!-- END REGION -->
+
+
+                                <!-- COUNTRY -->
+                                <div class="form-group {% if (errors.has('country')) %}has-danger{% endif %}">
+                                    <select name="country" class="form-control select2" id="country">
+                                        <option value="0">Pilih Negara</option>
+                                        {% if(state == 'search') %}
+                                            {% set ListCountry = call_helpers('get_ListCountry',Region) %}
+                                            {% for key,value in ListCountry %}
+                                                <option value="{{ key }}" {{ Country == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                    {% if (errors.has('country')) %}<div class="form-control-feedback"> {{ errors.first('country') }} </div>{% endif %}
+                                </div>
+                                <!-- END COUNTRY -->
+
+                                <!-- DESTINATION -->
+                                <div class="form-group {% if (errors.has('destination')) %}has-danger{% endif %}">
+                                    <select name="destination" class="form-control select2" id="destination">
+                                        <option value="0">Pilih Destinasi</option>
+                                        {% if(state == 'search') %}
+                                            {% set ListDestination = call_helpers_two('get_ListDestination',Region, Country) %}
+                                            {% for key,value in ListDestination %}
+                                                <option value="{{ key }}" {{ Destination == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                    {% if (errors.has('destination')) %}<div class="form-control-feedback"> {{ errors.first('destination') }} </div>{% endif %}
+                                </div>
+                                <!-- END DESTINATION -->
+                            </div>
+                            <hr>
+
+                            <button type="submit" class="btn btn-outline-info btn-rounded"><i class="fa fa-search"></i> Cari</button>
+                            <a href="javascript:void(0)" class="btn btn-outline btn-danger btn-rounded" id="btn-ResetFormSearch"><i class="fa fa-refresh"></i> Reset</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {%  if (Tours) %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="white-box">
+                <h3 class="box-title m-b-0">Hasil Pencarian</h3>
+                <table id="demo-foo-addrow" class="table table-bordered table-hover toggle-circle" data-page-size="7">
+                    <thead>
+                    <tr>
+                        <th data-sort-ignore="true" data-hide="phone">Paket</th>
+                        <th>Destinasi</th>
+                        <th data-sort-initial="true" data-hide="phone, tablet">Harga </th>
+                        <th data-sort-ignore="true" class="min-width"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for Tour in Tours %}
+                        {% set param_id = call_helpers('set_Base64Encode', Tour.id ~ " | " ~ Type) %}
+                    <tr>
+                        <td align="center">
+                            {% set PathBanner = call_helpers('getPathBanner') %}
+                            {% set BannerUrl = call_helpers_two('get_GenerateLinkImageUrl', PathBanner, Tour.tour_banner_one.file ) %}
+                            <img class="img-responsive" alt="{{ Tour.tour_banner_one.file }}" style="width: 300px;" src="{{ BannerUrl }}">
+                        </td>
+                        <td><h3>{{ Tour.name }}</h3>
+                            Region : {{ Tour.region.name }}<br>
+                            Negara : {{ Tour.country.name }}<br>
+                            Destination : {{ Tour.destination.name }}<br>
+                            {% if Type == 3 %}
+                            <br>
+                            <label class="text-blue">Jadwal Trip : </label>
+                            <ul class="list-icons">
+                                {% for Trip in Tour.open_trip %}
+                                <li><i class="fa fa-check text-success"></i> {{ call_helpers_two('DateFormat', Trip.departure_date,"d F Y") }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="label label-table label-success">Start From</span>
+                            <h3><i>IDR {{ call_helpers('set_numberformat', Tour.price) }}</i></h3>
+                        </td>
+                        <td>
+                            <a href="{{ route('tour_search_view',param_id) }}" class="btn btn-danger waves-effect waves-light m-r-10 btn-rounded"><i class="ti ti-shopping-cart"></i> Pesan</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="6">
+                            <div class="text-right">
+                                <ul class="pagination">
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        {% if state == 'search' %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="white-box">
+                    <h3 class="m-b-0 box-title">Ooops!</h3>
+                    <p class="text-muted"><code>Data tidak ditemukan.</code></p>
+                </div>
+            </div>
+        </div>
+            {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block addmodal %}
+
+{% endblock %}
+
+{% block addjs %}
+    {{ asset('plugins/multiselect/js/jquery.multi-select.js')| script_tag }}
+
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/js/select2.full.min.js')| script_tag }}
+    {{ asset('js/select2/basic.js')|script_tag }}
+
+    {{ asset('plugins/footable/js/footable.all.min.js')| script_tag }}
+    {{ theme_asset('js/footable-init.js')|script_tag }}
+
+    <!-- jQuery for carousel -->
+    {{ asset('plugins/owl.carousel/owl.carousel.min.js')| script_tag }}
+    {{ asset('plugins/owl.carousel/owl.custom.js')| script_tag }}
+
+    {{ asset('modules/tour/admin/main.js')|script_tag }}
+{% endblock %}

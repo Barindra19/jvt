@@ -1,0 +1,346 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    <!-- TEXTEDITOR -->
+    {{ asset('plugins/html5-editor/bootstrap-wysihtml5.css') | css_tag }}
+
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/css/select2.min.css')| css_tag }}
+    {{ asset('plugins/select2/css/select2-bootstrap.min.css')| css_tag }}
+
+    {{ asset('plugins/multiselect/css/multi-select.css')|css_tag }}
+
+    <!-- FILE UPLOAD -->
+    {{ asset('plugins/dropify/dist/css/dropify.min.css') | css_tag }}
+
+
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <a href="{{ route('tour_admin_show') }}" class="btn btn-default pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="fa fa-reply-all"></i> Kembali</a>
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('tour_admin_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">Tambah</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+{% block body %}
+    {% if (session('ScsMsg')) %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('ErrMsg')) %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ErrMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('InfoMsg')) %}
+        <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('InfoMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('WrngMsg')) %}
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('WrngMsg') | raw }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-info">
+                <div class="panel-heading"><i class="ti ti-shopping-cart"></i> {{ MenuDescription }}
+                    <div class="pull-right">
+                        <a href="#" data-perform="panel-collapse"><i class="ti-minus"></i></a>
+                    </div>
+                </div>
+                <div class="panel-wrapper collapse in" aria-expanded="true">
+                    <div class="panel-body">
+                        <form class="form" action="{% if state == "add" %}{{ route('tour_admin_post') }}{% else %}{{ route('tour_admin_update') }}{% endif %}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post" data-toggle="validator">
+                            {{ csrf_field() }}
+
+                            <!-- PARAM -->
+                            <input type="hidden" id="id" name="id" value="{{ id }}" />
+                            <!-- PARAM -->
+
+                            <!-- NAME -->
+                            <div class="form-group {% if (errors.has('name')) %}has-danger{% endif %}">
+                                <label for="name" class="control-label">Name
+                                    <label class="text-danger">*</label>
+                                </label>
+                                    <input class="form-control {% if (errors.has('name')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('name') }}{% else %}{{ Tour.name }}{% endif %}" id="name" name="name" data-error="Nama Tour Wajib diisi." required>
+                                    {% if (errors.has('name')) %}<div class="form-control-feedback"> {{ errors.first('name') }} </div>{% endif %}
+                                    <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END NAME -->
+
+
+                            <!-- REGION -->
+                            <div class="form-group {% if (errors.has('region')) %}has-danger{% endif %}">
+                                <label for="region" class="control-label">Region
+                                    <label class="text-danger">*</label>
+                                </label>
+                                    <select name="region" class="form-control select2" id="region" data-match-error="Region Wajib diisi" required>
+                                        {% set ListRegion = call_helpers('get_ListRegion') %}
+                                        {% for key,value in ListRegion %}
+                                            <option value="{{ key }}" {{ Tour.region_id == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if (errors.has('region')) %}<div class="form-control-feedback"> {{ errors.first('region') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END REGION -->
+
+
+                            <!-- COUNTRY -->
+                            <div class="form-group {% if (errors.has('country')) %}has-danger{% endif %}">
+                                <label for="country" class="control-label">Country
+                                    <label class="text-danger">*</label>
+                                </label>
+                                    <select name="country" class="form-control select2" id="country"  data-match-error="Negara Wajib diisi" required>
+                                        <option value="">Pilih Negara</option>
+                                        {% if(state == 'edit') %}
+                                            {% set ListCountry = call_helpers('get_ListCountry',Tour.region_id) %}
+                                            {% for key,value in ListCountry %}
+                                                <option value="{{ key }}" {{ Tour.country_id == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                    {% if (errors.has('country')) %}<div class="form-control-feedback"> {{ errors.first('country') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END COUNTRY -->
+
+                            <!-- DESTINATION -->
+                            <div class="form-group {% if (errors.has('destination')) %}has-danger{% endif %}">
+                                <label for="destination" class="control-label">Destinasi
+                                    <label class="text-danger">*</label>
+                                </label>
+                                    <select name="destination" class="form-control select2" id="destination"  data-match-error="Destinasi Wajib diisi" required>
+                                        <option value="">Pilih Destinasi</option>
+                                        {% if(state == 'edit') %}
+                                            {% set ListDestination = call_helpers_two('get_ListDestination',Tour.region_id, Tour.country_id) %}
+                                            {% for key,value in ListDestination %}
+                                                <option value="{{ key }}" {{ Tour.destination_id == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                            {% endfor %}
+                                        {% endif %}
+
+                                    </select>
+                                    {% if (errors.has('destination')) %}<div class="form-control-feedback"> {{ errors.first('destination') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END DESTINATION -->
+
+                            <!-- DURATION -->
+                            <div class="form-group {% if (errors.has('duration')) %}has-danger{% endif %}">
+                                <label for="duration" class="control-label">Durasi
+                                    <label class="text-danger">*</label>
+                                </label>
+                                    <input class="form-control {% if (errors.has('duration')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('duration') }}{% else %}{{ Tour.duration }}{% endif %}" id="duration" name="duration"  data-match-error="Durasi Wajib diisi" required>
+                                    {% if (errors.has('duration')) %}<div class="form-control-feedback"> {{ errors.first('name') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END DURATION -->
+
+                            <!-- YOUTUBE -->
+                            <div class="form-group {% if (errors.has('youtube')) %}has-danger{% endif %}">
+                                <label for="youtube" class="control-label">Youtube</label>
+                                    <textarea class="form-control {% if (errors.has('youtube')) %}form-control-danger{% endif %}" id="youtube" name="youtube"  rows="5">{% if state == 'add' %}{{ old('youtube') }}{% else %}{{ Tour.youtube }}{% endif %}</textarea>
+                                    {% if (errors.has('youtube')) %}<div class="form-control-feedback"> {{ errors.first('youtube') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END YOUTUBE -->
+
+                            <!-- ITINERARY -->
+                            <div class="form-group {% if (errors.has('itinerary')) %}has-danger{% endif %}">
+                                <label for="itinerary" class="control-label">Itinerary</label>
+                                    <textarea class="form-control mymce {% if (errors.has('itinerary')) %}form-control-danger{% endif %}" id="itinerary" name="itinerary">{% if state == 'add' %}{{ old('itinerary') }}{% else %}{{ Tour.itinerary }}{% endif %}</textarea>
+                                    {% if (errors.has('itinerary')) %}<div class="form-control-feedback"> {{ errors.first('itinerary') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END ITINERARY -->
+
+                            <hr>
+
+                            <!-- TERM & CONDITION -->
+                            <div class="form-group {% if (errors.has('term_condition')) %}has-danger{% endif %}">
+                                <label for="term_condition" class="control-label">Syarat & Ketentuan</label>
+                                    <textarea class="form-control mymce {% if (errors.has('term_condition')) %}form-control-danger{% endif %}" id="term_condition" name="term_condition">{% if state == 'add' %}{{ old('term_condition') }}{% else %}{{ Tour.term_condition }}{% endif %}</textarea>
+                                    {% if (errors.has('term_condition')) %}<div class="form-control-feedback"> {{ errors.first('term_condition') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END TERM & CONDITION -->
+
+                            <!-- INCLUDE -->
+                            <div class="form-group {% if (errors.has('include')) %}has-danger{% endif %}">
+                                <label for="term_condition" class="control-label">Include
+                                    <label class="text-danger">*</label>
+                                </label>
+                                    <select class='pre-selected-options' multiple='multiple' name="include[]" id="include">
+                                        {% set ListIncludes = call_helpers('get_ListIncludes') %}
+                                        {% set valueInclude = 0 %}
+                                        {% for key,value in ListIncludes %}
+
+                                            {% for Include in Includes %}
+                                                {{ Include }}
+                                                {% if (Include == key) %}
+                                                    <option value="{{ key }}" {{ Include == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                                    {% set valueInclude = Include %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if (valueInclude != key) %}
+                                                <option value="{{ key }}">{{ value }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    {% if (errors.has('include')) %}<div class="form-control-feedback"> {{ errors.first('include') }} </div>{% endif %}
+                                    <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END INCLUDE -->
+
+
+                            <!-- EXCLUDE -->
+                            <div class="form-group {% if (errors.has('exclude')) %}has-danger{% endif %}">
+                                <label for="exclude" class="control-label">Exclude
+                                    <label class="text-danger">*</label>
+                                </label>
+                                    <select class='pre-selected-options' multiple='multiple' name="exclude[]" id="exclude">
+                                        {% set ListIncludes = call_helpers('get_ListIncludes') %}
+                                        {% for key,value in ListIncludes %}
+                                            <option value="{{ key }}" {{ Tour.exclude == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if (errors.has('exclude')) %}<div class="form-control-feedback"> {{ errors.first('exclude') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END EXCLUDE -->
+
+                            <!-- COST OF GOOD -->
+                            <div class="form-group {% if (errors.has('cost_of_good')) %}has-danger{% endif %}">
+                                <label for="name" class="control-label">Harga Modal
+                                    <label class="text-danger">*</label></label>
+                                <input class="form-control rupiah {% if (errors.has('cost_of_good')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('cost_of_good') }}{% else %}{{ Tour.cost_of_good }}{% endif %}" id="cost_of_good" name="cost_of_good" data-error="Harga Modal Wajib diisi." required>
+                                {% if (errors.has('cost_of_good')) %}<div class="form-control-feedback"> {{ errors.first('cost_of_good') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END COST OF GOOD -->
+
+                            <!-- PRICE -->
+                            <div class="form-group {% if (errors.has('price')) %}has-danger{% endif %}">
+                                <label for="name" class="control-label">Harga mulai dari *</label>
+                                <input class="form-control rupiah {% if (errors.has('price')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('price') }}{% else %}{{ Tour.price }}{% endif %}" id="price" name="price" data-error="Harga Tour Wajib diisi." required>
+                                {% if (errors.has('price')) %}<div class="form-control-feedback"> {{ errors.first('price') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- END PRICE -->
+
+                            {% if (state == 'edit') %}
+                            <div class="form-group">
+                                <button type="button" class="btn btn-info btn-rounded" id="btn-addBanner"><i class="ti ti-image"></i> Upload Banner</button>
+                            </div>
+
+                            <div id="loadBanner">
+                                <div class="form-group">
+                                    <div class="row">
+                                        {% for Banner in Banners %}
+                                            {% set PathBanner = call_helpers('getPathBanner') %}
+                                            {% set BannerUrl = call_helpers_two('get_GenerateLinkImageUrl', PathBanner, Banner.file ) %}
+                                            <div class="col-lg-3 col-md-6"> <img class="img-responsive" alt="{{ Banner.file }}" src="{{ BannerUrl }}">
+                                                <div class="white-box">
+                                                    <h3 class="m-t-20 m-b-20">{{ Banner.name }}</h3>
+                                                    <p>{{ Banner.description }}</p>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% endif %}
+
+                            <hr>
+
+
+                            <button type="submit" class="btn btn-success waves-effect waves-light m-r-10 btn-rounded"><i class="fa fa-save"></i> Simpan</button>
+                            <a href="{{ route('tour_admin_show') }}" class="btn btn-default btn-outline btn-rounded"><i class="fa fa-times-circle"></i> Batal</a>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block addmodal %}
+    <div id="addBanner" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: none;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">Modal Content is Responsive</h4>
+                </div>
+                <div class="modal-body">
+                    <form name="form_upload" id="form_upload" method="post" enctype="multipart/form-data">
+                        <!-- PARAM -->
+                        {{ csrf_field() }}
+                        <input id="tour_id" name="tour_id" type="hidden">
+                        <!-- PARAM -->
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">Banner</label>
+                            <input type="file" name="banner" id="banner" class="dropify" >
+                        </div>
+                        <hr>
+                        <button type="button" class="btn btn-default waves-effect btn-rounded" data-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-danger waves-effect waves-light btn-rounded">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block addjs %}
+    {{ asset('plugins/tinymce/tinymce.min.js')| script_tag }}
+    {{ asset('js/tinymce/tinymce.js') | script_tag }}
+
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/js/select2.full.min.js')|script_tag }}
+    {{ asset('js/select2/select2.js')|script_tag }}
+
+    {{ asset('plugins/multiselect/js/jquery.multi-select.js')|script_tag }}
+
+    <!-- INPUT-MASK BUNDLE-->
+    {{ asset('plugins/jquery-inputmask/jquery.inputmask.bundle.min.js')|script_tag }}
+
+    <!-- JS INPUT-MASK -->
+    {{ asset('js/input-mask/input-mask.js')|script_tag }}
+
+    <!-- FILE UPLOAD -->
+    {{ asset('plugins/dropify/dist/js/dropify.min.js')| script_tag }}
+    {{ asset('js/file-upload/file-upload.js') | script_tag }}
+
+
+    {{ theme_asset('js/validator.js')|script_tag }}
+    {{ asset('modules/tour/admin/main.js')|script_tag }}
+
+{% endblock %}

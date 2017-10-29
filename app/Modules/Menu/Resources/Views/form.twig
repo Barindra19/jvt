@@ -1,0 +1,119 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    {{ asset('plugins/custom-select/custom-select.css')|css_tag }}
+    {{ asset('plugins/bootstrap-select/bootstrap-select.min.css')|css_tag }}
+    {{ asset('plugins/multiselect/css/multi-select.css')|css_tag }}
+
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <a href="{{ route('menu_show') }}" class="btn btn-default pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="fa fa-reply-all"></i> Kembali</a>
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('menu_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">Tambah</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title m-b-0">{{ MenuActive }}</h3>
+                <p class="text-muted m-b-30 font-13"> {{ MenuDescription }} </p>
+                <hr>
+                <form class="form" action="{% if state == "add" %}{{ route('menu_post') }}{% else %}{{ route('menu_update') }}{% endif %}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post">
+                    {{ csrf_field() }}
+
+                    <!-- PARAM -->
+                    <input type="hidden" id="id" name="id" value="{{ id }}" />
+                    <!-- PARAM -->
+
+                    <!-- NAME -->
+                    <div class="form-group row {% if (errors.has('name')) %}has-danger{% endif %}">
+                        <label for="example-text-input" class="col-2 col-form-label">Name</label>
+                        <div class="col-10">
+                            <input class="form-control {% if (errors.has('name')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('name') }}{% else %}{{ Menu.name }}{% endif %}" id="name" name="name">
+                            {% if (errors.has('name')) %}<div class="form-control-feedback"> {{ errors.first('name') }} </div>{% endif %}
+                        </div>
+                    </div>
+                    <!-- END NAME -->
+
+                    <!-- URL -->
+                    <div class="form-group row {% if (errors.has('url')) %}has-danger{% endif %}">
+                        <label for="example-text-input" class="col-2 col-form-label">URL</label>
+                        <div class="col-10">
+                            <input class="form-control {% if (errors.has('url')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('url') }}{% else %}{{ Menu.url }}{% endif %}" id="url" name="url">
+                            {% if (errors.has('url')) %}<div class="form-control-feedback"> {{ errors.first('url') }} </div>{% endif %}
+                        </div>
+                    </div>
+                    <!-- END URL -->
+
+                    <!-- PERMISSION -->
+                    <div class="form-group row {% if (errors.has('permission')) %}has-danger{% endif %}">
+                        <label for="example-text-input" class="col-2 col-form-label">Permission</label>
+                        <div class="col-10">
+                            <select name="permission" class="form-control select2" id="permission">
+                                {% set ListPermission = call_helpers('get_ListPermission') %}
+                                {% for key,value in ListPermission %}
+                                    <option value="{{ key }}" {{ Menu.permission == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if (errors.has('permission')) %}<div class="form-control-feedback"> {{ errors.first('permission') }} </div>{% endif %}
+                        </div>
+                    </div>
+                    <!-- END PERMISSION -->
+
+                    <!-- ICON -->
+                    <div class="form-group row {% if (errors.has('icon')) %}has-danger{% endif %}">
+                        <label for="example-text-input" class="col-2 col-form-label">Icon</label>
+                        <div class="col-10">
+                            <input class="form-control {% if (errors.has('icon')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('icon') }}{% else %}{{ Menu.icon }}{% endif %}" id="icon" name="icon">
+                            {% if (errors.has('icon')) %}<div class="form-control-feedback"> {{ errors.first('icon') }} </div>{% endif %}
+                        </div>
+                    </div>
+                    <!-- END ICON -->
+
+                    <!-- ORDER -->
+                    <div class="form-group row {% if (errors.has('order')) %}has-danger{% endif %}">
+                        <label for="example-text-input" class="col-2 col-form-label">Urut</label>
+                        <div class="col-10">
+                            <input class="form-control {% if (errors.has('order')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('order') }}{% else %}{{ Menu.order }}{% endif %}" id="order" name="order">
+                            {% if (errors.has('order')) %}<div class="form-control-feedback"> {{ errors.first('order') }} </div>{% endif %}
+                        </div>
+                    </div>
+                    <!-- END ORDER -->
+
+
+                    <hr>
+                    <button type="submit" class="btn btn-success waves-effect waves-light m-r-10">Simpan</button>
+                    <a href="{{ route('menu_show') }}" class="btn btn-inverse waves-effect waves-light">Batal</a>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
+
+
+{% block addjs %}
+    {{ asset('plugins/custom-select/custom-select.min.js')|script_tag }}
+    {{ asset('plugins/bootstrap-select/bootstrap-select.min.js')|script_tag }}
+    {{ asset('plugins/multiselect/js/jquery.multi-select.js')|script_tag }}
+    {{ asset('js/select2/select2.js')|script_tag }}
+
+{% endblock %}

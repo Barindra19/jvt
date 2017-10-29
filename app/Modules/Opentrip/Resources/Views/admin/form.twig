@@ -1,0 +1,353 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/css/select2.min.css')| css_tag }}
+    {{ asset('plugins/select2/css/select2-bootstrap.min.css')| css_tag }}
+
+
+    <!-- Date picker plugins css -->
+    {{ asset('plugins/bootstrap-datepicker/bootstrap-datepicker.min.css')| css_tag }}
+
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <a href="{{ route('opentrip_admin_show') }}" class="btn btn-default pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="fa fa-reply-all"></i> Kembali</a>
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('opentrip_admin_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">Tambah</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if (session('ScsMsg')) %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('ErrMsg')) %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ErrMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('InfoMsg')) %}
+        <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('InfoMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('WrngMsg')) %}
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('WrngMsg') | raw }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title m-b-0">{{ MenuActive }}</h3>
+                <p class="text-muted m-b-30 font-13"> {{ MenuDescription | raw}} </p>
+                <hr>
+                <form class="form" action="{% if state == "add" %}{{ route('opentrip_admin_post') }}{% else %}{{ route('opentrip_admin_update') }}{% endif %}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post" data-toggle="validator">
+                    {{ csrf_field() }}
+
+                    <!-- PARAM -->
+                    <input type="hidden" id="id" name="id" value="{{ id }}" />
+                    <!-- PARAM -->
+
+                    {% if state == 'add' %}
+                    <!-- REGION -->
+                    <div class="form-group {% if (errors.has('region')) %}has-danger{% endif %}">
+                        <label>Region <label class="text-danger">*</label></label>
+                        <select name="region" class="form-control select2" id="region">
+                            {% set ListRegion = call_helpers('get_ListRegion') %}
+                            {% for key,value in ListRegion %}
+                                <option value="{{ key }}" {{ old('region') == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if (errors.has('region')) %}<div class="form-control-feedback"> {{ errors.first('region') }} </div>{% endif %}
+                    </div>
+                    <!-- END REGION -->
+
+
+                    <!-- COUNTRY -->
+                    <div class="form-group {% if (errors.has('country')) %}has-danger{% endif %}">
+                        <label>Negara <label class="text-danger">*</label></label>
+                        <select name="country" class="form-control select2" id="country">
+                            <option value="0">Pilih Negara</option>
+                            {% if(state == 'search') %}
+                                {% set ListCountry = call_helpers('get_ListCountry',old('region')) %}
+                                {% for key,value in ListCountry %}
+                                    <option value="{{ key }}" {{ old('country') == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        {% if (errors.has('country')) %}<div class="form-control-feedback"> {{ errors.first('country') }} </div>{% endif %}
+                    </div>
+                    <!-- END COUNTRY -->
+
+                    <!-- DESTINATION -->
+                    <div class="form-group {% if (errors.has('destination')) %}has-danger{% endif %}">
+                        <label>Destinasi <label class="text-danger">*</label></label>
+                        <select name="destination" class="form-control select2" id="destination">
+                            <option value="0">Pilih Destinasi</option>
+                            {% if(state == 'search') %}
+                                {% set ListDestination = call_helpers_two('get_ListDestination',old('region'), old('country')) %}
+                                {% for key,value in ListDestination %}
+                                    <option value="{{ key }}" {{ old('destination') == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        {% if (errors.has('destination')) %}<div class="form-control-feedback"> {{ errors.first('destination') }} </div>{% endif %}
+                    </div>
+                    <!-- END DESTINATION -->
+
+
+                    <!-- TOUR -->
+                    <div class="form-group {% if (errors.has('tour')) %}has-danger{% endif %}">
+                        <label>Tour <label class="text-danger">*</label></label>
+                        <select name="tour" class="form-control {% if (errors.has('tour')) %}form-control-danger{% endif %}" id="tour">
+                        </select>
+                        {% if (errors.has('tour')) %}<div class="form-control-feedback"> {{ errors.first('destination') }} </div>{% endif %}
+                    </div>
+                    <!-- END TOUR -->
+
+                    {% else %}
+                        <div class="form-group">
+                            <label>Tour <label class="text-danger"><small>(Note)</small></label></label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="tour_name" name="tour_name" value="{{ OpenTrip.tour.name }}" disabled>
+                                <span class="input-group-addon"><i class="fa fa-globe"></i></span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- DEPARTURE DATE -->
+                    <div class="form-group {% if (errors.has('departure_date')) %}has-danger{% endif %}">
+                        <label>Departure Date <label class="text-danger">*</label></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control mydatepicker {% if (errors.has('departure_date')) %}form-control-danger{% endif %}" data-date-format="dd-mm-yyyy" id="departure_date" name="departure_date" placeholder="mm/dd/yyyy" value="{% if state == 'add' %}{{ old('departure_date') }}{% else %}{{ call_helpers_two('DateFormat',OpenTrip.departure_date,"d-m-Y") }}{% endif %}">
+                            <span class="input-group-addon"><i class="icon-calender"></i></span>
+                        </div>
+                        {% if (errors.has('departure_date')) %}<div class="form-control-feedback"> {{ errors.first('departure_date') }} </div>{% endif %}
+                    </div>
+                    <!-- END DEPARTURE DATE -->
+
+                    <!-- GUIDE -->
+                    <div class="form-group {% if (errors.has('guide')) %}has-danger{% endif %}">
+                        <label>Guide</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control {% if (errors.has('guide')) %}form-control-danger{% endif %}" id="guide" name="guide" placeholder="Tour Guide" value="{% if state == 'add' %}{{ old('guide') }}{% else %}{{ OpenTrip.guide }}{% endif %}">
+                            <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                        </div>
+                        {% if (errors.has('guide')) %}<div class="form-control-feedback"> {{ errors.first('guide') }} </div>{% endif %}
+                    </div>
+                    <!-- END GUIDE -->
+
+                    <hr>
+                    {% if state == 'add' %}
+                    <button type="submit" class="btn btn-outline-primary btn-rounded"><i class="fa fa-save"></i> Simpan</button>
+                    <a href="{{ route('opentrip_admin_show') }}" class="btn btn-outline-warning btn-rounded"><i class="fa fa-reply-all"></i> Batal</a>
+                    {% endif %}
+
+                    <br>
+                    <div class="table-responsive">
+                        <h3 class="text-blue"><strong>Detail</strong><i> Trips</i></h3>
+                        <table id="tbl_quotas" class="table-striped table-hover table table-bordered">
+                            <thead>
+                            <tr>
+                                <th width="20%" align="center">Kelas</th>
+                                <th width="20%" align="center">Harga Modal</th>
+                                <th width="20%" align="center">Harga Jual</th>
+                                <th width="10%" align="center">Quota</th>
+                                <th width="10%" align="center">Pemesan</th>
+                                <th width="20%" align="center"><a href="javascript:void(0);" class="btn btn-outline-info btn-rounded" id="btn-Add"><i class="fa fa-plus-circle"></i> Tambah</a></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for Quotas in OpenTrip.open_trip_quota %}
+                                <tr id="row-{{ Quotas.id }}">
+                                    <td>{{ Quotas.tour_class.name }}</td>
+                                    <td align="right">Rp {{ call_helpers('set_numberformat',Quotas.cost_of_good) }}</td>
+                                    <td align="right">Rp {{ call_helpers('set_numberformat',Quotas.selling_price) }}</td>
+                                    <td align="right">{{ Quotas.quota }}</td>
+                                    <td align="right">{{ Quotas.volume }}</td>
+                                    <td>
+                                        <a href="javascript:void(0);" class="btn btn-outline-primary btn-rounded" onclick="editDetail({{ Quotas.id }})"><i class="fa fa-edit"></i></a>
+                                        <a href="javascript:void(0);" class="btn btn-outline-danger btn-rounded" onclick="deleteDetail({{ Quotas.id }})"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    {% if state == 'edit' %}
+                        <button type="submit" class="btn btn-outline-primary btn-rounded"><i class="fa fa-save"></i> Ubah</button>
+                        <a href="{{ route('opentrip_admin_show') }}" class="btn btn-outline-warning btn-rounded"><i class="fa fa-reply-all"></i> Batal</a>
+                    {% endif %}
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block addmodal %}
+
+    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="FormDetail" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h3>Add Quota</h3>
+                    <hr>
+                    <form class="form" name="form_detail" id="form_detail" method="post" data-toggle="validator">
+                        {{ csrf_field() }}
+
+                        <!-- PARAM -->
+                        <input type="hidden" id="statusform" name="statusform">
+                        <input type="hidden" id="quota_id" name="quota_id">
+                        <input type="hidden" id="open_trip_id" name="id">
+
+                        <!-- TOUR CLASS -->
+                        <div class="form-group row" id="row-tour_class">
+                            <label for="example-text-input" class="col-3 col-form-label">Tour Class <label class="text-danger">*</label></label>
+                            <div class="col-6">
+                                <select name="tour_class" class="form-control select2" id="tour_class" data-error="Masukan Tour Class" required>
+                                    {% set ListTourClass = call_helpers('get_ListTourClass') %}
+                                    <option value="0">-- Pilih Class Tour -- </option>
+                                    {% for key,value in ListTourClass %}
+                                        <option value="{{ key }}">{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- END TOUR CLASS -->
+
+                        <div class="row">
+                            <!-- COST OF GOOD -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Harga Modal <label class="text-danger">*</label></label>
+                                    <div class="input-group">
+                                        <input class="form-control rupiah" type="text" id="cost_of_good" name="cost_of_good" data-error="Harga Modal Wajib diisi." required>
+                                        <span class="input-group-addon">Rp</span>
+                                    </div>
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <!-- END COST OF GOOD -->
+                            <!-- SELLING PRICE -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Harga Jual <label class="text-danger">*</label></label>
+                                    <div class="input-group">
+                                        <input class="form-control rupiah" type="text" id="selling_price" name="selling_price" data-error="Harga Jual Wajib diisi." required>
+                                        <span class="input-group-addon">Rp</span>
+                                    </div>
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <!-- END SELLING PRICE -->
+                        </div>
+
+                        <div class="row">
+                            <!-- QUOTAS -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Quota <label class="text-danger">*</label></label>
+                                        <input class="form-control quota" type="text" id="quota" name="quota" data-error="Quota Wajib diisi." required>
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <!-- END QUOTAS -->
+                            <!-- PEMESAN -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Pemesan</label>
+                                    <input class="form-control quota" type="text" id="pemesan" name="pemesan" readonly>
+                                </div>
+                            </div>
+                            <!-- END PEMESAN -->
+                        </div>
+
+                        <hr>
+                        <button type="submit" class="btn btn-danger waves-effect text-left btn-rounded">Simpan</button>
+
+                    </form>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+
+    <!-- DELETE -->
+    <div class="modal fade bs-modal-sm" id="ConfirmDelete" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-danger">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">Konfirmasi Hapus Komisi!</h4>
+                </div>
+                <div class="modal-body">
+                    Apa anda yakin??
+                    <input type="hidden" name="id_delete" id="id_delete">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline-info btn-rounded" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn dark btn-outline-danger btn-rounded" data-dismiss="modal" id="btn-Delete">Hapus</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- DELETE -->
+
+{% endblock %}
+
+
+{% block addjs %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/js/select2.full.min.js')| script_tag }}
+    {{ asset('js/select2/basic.js')|script_tag }}
+
+    <!-- Date Picker Plugin JavaScript -->
+    {{ asset('plugins/bootstrap-datepicker/bootstrap-datepicker.min.js')| script_tag }}
+
+    <!-- INPUT-MASK BUNDLE-->
+    {{ asset('plugins/jquery-inputmask/jquery.inputmask.bundle.min.js')|script_tag }}
+
+    <!-- JS INPUT-MASK -->
+    {{ asset('js/input-mask/input-mask.js')|script_tag }}
+
+
+    <script>
+        jQuery('.mydatepicker, #datepicker').datepicker();
+    </script>
+
+    {{ theme_asset('js/validator.js')|script_tag }}
+
+    {{ asset('modules/tour/admin/main.js')|script_tag }}
+    {{ asset('modules/opentrip/main.js')|script_tag }}
+
+
+{% endblock %}

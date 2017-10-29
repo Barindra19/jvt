@@ -1,0 +1,100 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    {{ asset('plugins/custom-select/custom-select.css')|css_tag }}
+
+    {{ asset('plugins/bootstrap-select/bootstrap-select.min.css')|css_tag }}
+    {{ asset('plugins/multiselect/css/multi-select.css')|css_tag }}
+
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <a href="{{ route('user_show') }}" class="btn btn-default pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="fa fa-reply-all"></i> Kembali</a>
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('user_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">Tambah</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-info">
+                <div class="panel-heading"><small> {{ MenuDescription }}</small>
+                    <div class="pull-right"><a href="#" data-perform="panel-collapse"><i class="ti-minus"></i></a> </div>
+                </div>
+                <div class="panel-wrapper collapse in" aria-expanded="true">
+                    <div class="panel-body">
+                        <form class="form" action="{% if state == "add" %}{{ route('user_post') }}{% else %}{{ route('user_update') }}{% endif %}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post">
+                            {{ csrf_field() }}
+
+                            <!-- PARAM -->
+                            <input type="hidden" id="id" name="id" value="{{ id }}" />
+                            <!-- PARAM -->
+
+                            <!-- NAME -->
+                            <div class="form-group row {% if (errors.has('name')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Name</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('name')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('name') }}{% else %}{{ User.name }}{% endif %}" id="name" name="name">
+                                    {% if (errors.has('name')) %}<div class="form-control-feedback"> {{ errors.first('name') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END NAME -->
+
+                            <!-- EMAIL -->
+                            <div class="form-group row {% if (errors.has('email')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Email</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('email')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('email') }}{% else %}{{ User.email }}{% endif %}" id="email" name="email">
+                                    {% if (errors.has('email')) %}<div class="form-control-feedback"> {{ errors.first('email') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END EMAIL -->
+
+                            <!-- ROLE -->
+                            <div class="form-group row {% if (errors.has('role')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Role</label>
+                                <div class="col-10">
+                                    <select name="role" class="form-control select2" id="role">
+                                        {% set ListRole = call_helpers('get_ListRole') %}
+                                        {% for key,value in ListRole %}
+                                            <option value="{{ key }}" {{ RoleID == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if (errors.has('role')) %}<div class="form-control-feedback"> {{ errors.first('role') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END ROLE -->
+
+                            <hr>
+                            <button type="submit" class="btn btn-success waves-effect waves-light m-r-10"><i class="fa fa-save"></i> Simpan</button>
+                            <a href="{{ route('user_show') }}" class="btn btn-default btn-outline"><i class="fa fa-times-circle"></i> Batal</a>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block addjs %}
+    {{ asset('plugins/custom-select/custom-select.min.js')|script_tag }}
+    {{ asset('plugins/multiselect/js/jquery.multi-select.js')|script_tag }}
+
+    {{ asset('js/select2/select2.js')|script_tag }}
+
+
+{% endblock %}

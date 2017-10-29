@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+{% block metadata %}
+        {% include "admin::partials/metadata" %}
+    {% endblock %}
+
+    {% block css_assets %}
+        {% include "admin::partials/css_assets" %}
+    {% endblock %}
+
+    {% block addcss %}
+
+    {% endblock %}
+
+    <!-- Custom CSS -->
+    {{ theme_asset('admin::css/style.css') | css_tag }}
+    <!-- color CSS -->
+    {{ theme_asset('admin::css/colors/default-dark.css') | css_tag }}
+
+</head>
+<!-- END HEAD -->
+
+{% set ProjectName  = call_helpers_two('getSettingInfo', config_get('app.setting_id'),'project_name') %}
+{% set Description  = call_helpers_two('getSettingInfo', config_get('app.setting_id'),'description') %}
+{% set Logo         = call_helpers_two('getSettingInfo', config_get('app.setting_id'),'logo') %}
+{% set PathImage    = call_helpers('getPathLogo') %}
+{% set UrlLogo      = call_helpers_two('get_GenerateLinkImageUrl', PathImage, Logo) %}
+{% set User         = call_helpers('get_UserInformation') %}
+{% set LastLogin    = call_helpers('get_LastLogin') %}
+
+<body class="fix-header">
+<!-- Preloader -->
+<div class="preloader">
+    <div class="cssload-speeding-wheel"></div>
+</div>
+<div id="wrapper">
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-static-top m-b-0">
+        <div class="navbar-header"> <a class="navbar-toggle hidden-sm hidden-md hidden-lg " href="javascript:void(0)" data-toggle="collapse" data-target=".navbar-collapse"><i class="ti-menu"></i></a>
+            <div class="top-left-part"><a class="logo" href="{{ url('/home') }}">
+                    {% if call_helpers('bool_get_useragent_info','isDesktop') %}
+                        <span class="hidden-xs">
+                            <!--This is dark logo text-->
+                            <img src="{{ UrlLogo }}" alt="home" class="dark-logo" style="width:200px;height: 60px;margin-left: 15px;"/>
+                        </span>
+                    {% else %}
+                        <b>
+                            <!--This is dark logo icon-->
+                            JTS
+                            {#<img src="{{ UrlLogo }}" alt="home" class="dark-logo" style="width:200px;height: 60px;margin-left: 100px;" />#}
+                        </b>
+                    {% endif %}
+                </a></div>
+            <ul class="nav navbar-top-links navbar-left hidden-xs">
+                <li><a href="javascript:void(0)" class="open-close hidden-xs waves-effect waves-light"><i class="icon-arrow-left-circle ti-menu"></i></a></li>
+            </ul>
+            <ul class="nav navbar-top-links navbar-right pull-right">
+            </ul>
+        </div>
+        <!-- /.navbar-header -->
+        <!-- /.navbar-top-links -->
+        <!-- /.navbar-static-side -->
+    </nav>
+    <!-- Left navbar-header -->
+    <div class="navbar-default sidebar" role="navigation">
+        <div class="sidebar-nav navbar-collapse slimscrollsidebar">
+            <div class="user-profile">
+                <div class="dropdown user-pro-body">
+                    <div><img src="{{ call_helpers('get_AvatarDefault') }}" alt="user-img" class="img-circle"></div>
+                    <a href="{{ url('/') }}" class="dropdown-toggle u-dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ call_helpers('get_UsersInformation','name') }} <span class="caret"></span></a>
+                    <ul class="dropdown-menu animated flipInY">
+                        <li><a href="{{ route('profile_info') }}"><i class="ti-user"></i> My Profile</a></li>
+                    </ul>
+                </div>
+            </div>
+            <ul class="nav" id="side-menu">
+                <li class="sidebar-search hidden-sm hidden-md hidden-lg">
+                    <!-- input-group -->
+                    <div class="input-group custom-search-form">
+                        <input type="text" class="form-control" placeholder="Search...">
+                        <span class="input-group-btn">
+                        <button class="btn btn-default" type="button"> <i class="fa fa-search"></i> </button>
+                        </span> </div>
+                    <!-- /input-group -->
+                </li>
+                <li>
+                    <a href="{{ url('/home') }}" class="waves-effect {{ active_class_path('home', 'active') }}"><i class="ti ti-home"></i> <span class="hide-menu"> Home </span></a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        {{ csrf_field() }}
+                    </form>
+                </li>
+
+                {% include "admin::partials/menu" %}
+                <li>
+                    <a href="javascript:void(0);" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fa fa-power-off" data-icon="v"></i> <span class="hide-menu"> Logout </span></a>
+                </li>
+
+                <li class="nav-small-cap">--- Informasi Member</li>
+                <li><a href="javascript:void(0);" class="waves-effect"><span class="hide-menu">Level : {{ User.level.name }}</span></a></li>
+                <li><a href="javascript:void(0);" class="waves-effect"><span class="hide-menu"><small style="size: 5px;">Login Terakhir : {{ call_helpers_two('DateFormat', LastLogin.last_login, "d F Y H:i:s") }}</small></span></a></li>
+                <li><a href="javascript:void(0);" class="waves-effect"><span class="hide-menu">IP ADDRESS : {{ LastLogin.ip_address }}</span></a></li>
+
+
+            </ul>
+        </div>
+    </div>
+    <!-- Left navbar-header end -->
+    <!-- Page Content -->
+    <div id="page-wrapper">
+        <div class="container-fluid">
+
+            {% block pageheader %}
+                <!-- TITLE AND BREADCUMB -->
+            {% endblock %}
+
+
+            {% block body %}
+            {% endblock %}
+            {% block addmodal %}
+
+
+
+
+            {% endblock %}
+
+        </div>
+        <!-- /.container-fluid -->
+        <footer class="footer text-center"> 2017 &copy; Java Tour </footer>
+    </div>
+    <!-- /#page-wrapper -->
+</div>
+
+
+ </body>
+
+
+
+<!-- END QUICK NAV -->
+
+
+
+{% block js_assets %}
+
+    <script>
+        var BASE_URL = '{{ url('/') }}';
+        var CSRF_TOKEN = '{{ csrf_token() }}';
+    </script>
+
+    {% include "admin::partials/js_assets" %}
+
+{% endblock %}
+
+{% block addjs %}
+
+{% endblock %}
+{{ asset('plugins/styleswitcher/jQuery.style.switcher.js')|script_tag }}
+
+</body>
+</html>

@@ -1,0 +1,294 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    {{ asset('plugins/select2/css/select2.min.css')| css_tag }}
+    {{ asset('plugins/select2/css/select2-bootstrap.min.css')| css_tag }}
+
+    {{ asset('plugins/sweetalert/sweetalert.css')| css_tag }}
+
+
+
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <a href="{{ route('level_show') }}" class="btn btn-default pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="fa fa-reply-all"></i> Kembali</a>
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('level_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">Tambah</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if session('ScsMsg') %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') }}
+        </div>
+    {% endif %}
+
+    {% if session('ErrMsg') %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ErrMsg') }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title m-b-0">{{ MenuActive }}</h3>
+                <p class="text-muted m-b-30 font-13"> {{ MenuDescription }} </p>
+                <hr>
+                <form class="form" action="{% if state == "add" %}{{ route('level_post') }}{% else %}{{ route('level_update') }}{% endif %}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post" data-toggle="validator">
+                    {{ csrf_field() }}
+
+                    <!-- PARAM -->
+                    <input type="hidden" id="id" name="id" value="{{ id }}" />
+                    <!-- PARAM -->
+
+                    <!-- NAME -->
+                    <div class="form-group row {% if (errors.has('name')) %}has-danger{% endif %}">
+                        <label for="example-text-input" class="col-2 col-form-label">Name <label class="text-danger">*</label></label>
+                        <div class="col-6">
+                            <input class="form-control {% if (errors.has('name')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('name') }}{% else %}{{ Level.name }}{% endif %}" id="name" name="name" data-error="Nama Level Wajib diisi." required>
+                            {% if (errors.has('name')) %}<div class="form-control-feedback"> {{ errors.first('name') }} </div>{% endif %}
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+                    <!-- END NAME -->
+
+                    <!-- URUT -->
+                    <div class="form-group row {% if (errors.has('order')) %}has-danger{% endif %}">
+                        <label for="example-text-input" class="col-2 col-form-label">Urut <label class="text-danger">*</label></label>
+                        <div class="col-2">
+                            <input class="form-control discount {% if (errors.has('order')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ next }}{% else %}{{ Level.order }}{% endif %}" id="order" name="order" data-error="Urutan keagenan" required>
+                            {% if (errors.has('order')) %}<div class="form-control-feedback"> {{ errors.first('order') }} </div>{% endif %}
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+                    <!-- END URUT -->
+
+                    <hr>
+                    {% if state == 'add' %}
+                    <button type="submit" class="btn btn-outline-primary btn-rounded"><i class="fa fa-save"></i> Simpan</button>
+                    <a href="{{ route('level_show') }}" class="btn btn-outline-warning btn-rounded"><i class="fa fa-reply-all"></i> Batal</a>
+                    {% endif %}
+                <br>
+                    {% if state == 'edit' %}
+                        <div class="table-responsive">
+                            <h3 class="text-blue"><strong>Komisi</strong><i> Keagenan</i></h3>
+                            <table id="tbl_komisi_keagenan" class="table-striped table-hover table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th width="60%" align="center">Level</th>
+                                    <th width="20%" align="center">Komisi</th>
+                                    <th width="20%" align="center"><a href="javascript:void(0);" class="btn btn-outline-info btn-rounded" id="btn-AddKeagenan"><i class="fa fa-plus-circle"></i> Tambah</a></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for Keagenan in KomisiKeagenan %}
+                                    <tr id="row-{{ Keagenan.id }}">
+                                        <td>{{ Keagenan.levels.name }}</td>
+                                        <td>{{ Keagenan.komisi }}</td>
+                                        <td>
+                                                <a href="javascript:void(0);" class="btn btn-outline-primary btn-rounded" onclick="editKeagenan({{ Keagenan.id }})"><i class="fa fa-edit"></i></a>
+                                                <a href="javascript:void(0);" class="btn btn-outline-danger btn-rounded" onclick="deleteKeagenan({{ Keagenan.id }})"><i class="fa fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="table-responsive">
+                            <h3 class="text-blue"><strong>Komisi</strong><i> Transaksi</i></h3>
+                            <table id="tbl_komisi_transaksi" class="table-striped table-hover table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th width="60%" align="center">Level</th>
+                                    <th width="20%" align="center">Komisi</th>
+                                    <th width="20%" align="center"><a href="javascript:void(0);" class="btn btn-outline-info btn-rounded" id="btn-AddTransaksi"><i class="fa fa-plus-circle"></i> Tambah</a></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for Transaksi in KomisiTransaksi %}
+                                    <tr id="row-{{ Transaksi.id }}">
+                                        <td>{{ Transaksi.levels.name }}</td>
+                                        <td>{{ Transaksi.komisi }}</td>
+                                        <td>
+                                            <a href="javascript:void(0);" class="btn btn-outline-primary btn-rounded" onclick="editTransaksi({{ Transaksi.id }})"><i class="fa fa-edit"></i></a>
+                                            <a href="javascript:void(0);" class="btn btn-outline-danger btn-rounded" onclick="deleteTransaksi({{ Transaksi.id }})"><i class="fa fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                    <hr>
+                    {% if state == 'edit' %}
+                        <button type="submit" class="btn btn-outline-primary btn-rounded"><i class="fa fa-save"></i> Ubah</button>
+                        <a href="{{ route('level_show') }}" class="btn btn-outline-warning btn-rounded"><i class="fa fa-reply-all"></i> Kembali</a>
+                    {% endif %}
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
+
+{% block addmodal %}
+
+    <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="FormKomisiKeagenan" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h3>Level</h3>
+                    <hr>
+                    <form class="form" name="form_komisi" id="form_komisi" method="post" data-toggle="validator">
+                        {{ csrf_field() }}
+
+                        <!-- PARAM -->
+                        <input type="hidden" id="statusform" name="statusform">
+                        <input type="hidden" id="komisi_id" name="komisi_id">
+                        <input type="hidden" id="level_id" name="id">
+
+                        <!-- TYPE KOMISI -->
+                        <div class="form-group row" id="row-komisi_type">
+                            <label for="example-text-input" class="col-4 col-form-label">Type Komisi <label class="text-danger">*</label></label>
+                            <div class="col-6">
+                                <select name="komisi_type" class="form-control select2" id="komisi_type" data-error="Tipe Komisi Wajib diisi." required>
+                                    {% set ListKomisiType = call_helpers('get_ListKomisiType') %}
+                                    <option value="0">-- Pilih Tipe Komisi -- </option>
+                                    {% for key,value in ListKomisiType %}
+                                        <option value="{{ key }}">{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- END TYPE KOMISI -->
+
+                        <!-- LEVEL -->
+                        <div class="form-group row"  id="row-level">
+                            <label for="example-text-input" class="col-4 col-form-label">Level <label class="text-danger">*</label></label>
+                            <div class="col-6">
+                                <select name="level" class="form-control select2" id="level" data-error="Level Wajib diisi." required>
+                                    {% set ListLevel = call_helpers('get_ListLevel') %}
+                                    <option value="0">-- Pilih Level -- </option>
+                                    {% for key,value in ListLevel %}
+                                        <option value="{{ key }}">{{ value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- END LEVEL -->
+
+                        <!-- KOMISI -->
+                        <div class="form-group row" id="row-komisi">
+                            <label for="example-text-input" class="col-4 col-form-label">Komisi Keagenan <label class="text-danger">*</label></label>
+                            <div class="col-2">
+                                <div class="input-group">
+                                    <input class="form-control discount" type="text" value="" id="komisi" name="komisi" data-error="Komisi Wajib diisi." required>
+                                    <div class="input-group-addon"><i class="fa fa-percent"></i></div>
+                                </div>
+                                {% if (errors.has('komisi')) %}<div class="form-control-feedback"> {{ errors.first('komisi') }} </div>{% endif %}
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <!-- END KOMISI -->
+                        <hr>
+                        <button type="submit" class="btn btn-danger waves-effect text-left btn-rounded">Simpan</button>
+
+                    </form>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
+    <!-- DELETE -->
+    <div class="modal fade bs-modal-sm" id="ConfirmDeleteKeagenan" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-danger">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">Konfirmasi Hapus Komisi!</h4>
+                </div>
+                <div class="modal-body">
+                    Apa anda yakin??
+                    <input type="hidden" name="id_delete_keagenan" id="id_delete_keagenan">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline-info btn-rounded" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn dark btn-outline-danger btn-rounded" data-dismiss="modal" id="btn-DeleteKeagenan">Hapus</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- DELETE -->
+
+
+    <!-- DELETE TRANSAKSI -->
+    <div class="modal fade bs-modal-md" id="ConfirmDeleteTransaksi" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-danger">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">Konfirmasi Hapus Komisi Transaksi!</h4>
+                </div>
+                <div class="modal-body">
+                    Apa anda yakin??
+                    <input type="hidden" name="id_delete_transaksi" id="id_delete_transaksi">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline-info btn-rounded" data-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn dark btn-outline-danger btn-rounded" data-dismiss="modal" id="btn-DeleteTransaksi">Hapus</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- DELETE TRANSAKSI-->
+
+
+{% endblock %}
+
+{% block addjs %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/js/select2.full.min.js')|script_tag }}
+    {{ asset('js/select2/basic.js')|script_tag }}
+
+    <!-- INPUT-MASK BUNDLE-->
+    {{ asset('plugins/jquery-inputmask/jquery.inputmask.bundle.min.js')|script_tag }}
+
+    <!-- JS INPUT-MASK -->
+    {{ asset('js/input-mask/input-mask.js')|script_tag }}
+
+    {{ asset('plugins/sweetalert/sweetalert.min.js')|script_tag }}
+    {{ asset('plugins/sweetalert/jquery.sweet-alert.custom.js')|script_tag }}
+
+
+    {{ theme_asset('js/validator.js')|script_tag }}
+    {{ asset('modules/level/main.js')|script_tag }}
+
+
+{% endblock %}

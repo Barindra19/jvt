@@ -1,0 +1,101 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    {{ asset('plugins/bootstrap-select/bootstrap-select.min.css')|css_tag }}
+    {{ asset('plugins/custom-select/custom-select.css')|css_tag }}
+    {{ asset('plugins/multiselect/css/multi-select.css')|css_tag }}
+
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <a href="{{ route('country_show') }}" class="btn btn-default pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="fa fa-reply-all"></i> Kembali</a>
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('country_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">Tambah</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if session('ErrMsg') %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ErrMsg') }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title m-b-0">{{ MenuActive }}</h3>
+                <p class="text-muted m-b-30 font-13"> {{ MenuDescription }} </p>
+                <hr>
+                <form class="form" action="{% if state == "add" %}{{ route('country_post') }}{% else %}{{ route('country_update') }}{% endif %}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post" data-toggle="validator">
+                    {{ csrf_field() }}
+
+                    <!-- PARAM -->
+                    <input type="hidden" id="id" name="id" value="{{ id }}" />
+                    <!-- PARAM -->
+
+                    <!-- NAME -->
+                    <div class="form-group row {% if (errors.has('name')) %}has-danger{% endif %}">
+                        <label for="example-text-input" class="col-2 col-form-label">Name <label class="text-danger">*</label></label>
+                        <div class="col-6">
+                            <input class="form-control {% if (errors.has('name')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('name') }}{% else %}{{ Country.name }}{% endif %}" id="name" name="name" data-error="Nama Negara Wajib diisi." required>
+                            {% if (errors.has('name')) %}<div class="form-control-feedback"> {{ errors.first('name') }} </div>{% endif %}
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+                    <!-- END NAME -->
+
+                    <!-- REGION -->
+                    <div class="form-group row {% if (errors.has('region')) %}has-danger{% endif %}">
+                        <label for="example-text-input" class="col-2 col-form-label">Region
+                            <label class="text-danger">*</label>
+                        </label>
+                        <div class="col-6">
+                            <select name="region" class="form-control select2" id="region" data-error="Region Wajib diisi." required>
+                                {% set ListRegion = call_helpers('get_ListRegion') %}
+                                {% for key,value in ListRegion %}
+                                    <option value="{{ key }}" {{ Country.region_id == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if (errors.has('region')) %}<div class="form-control-feedback"> {{ errors.first('region') }} </div>{% endif %}
+                        </div>
+                    </div>
+                    <!-- END REGION -->
+
+                    <hr>
+                    <button type="submit" class="btn btn-outline-primary btn-rounded"><i class="fa fa-save"></i> Simpan</button>
+                    <a href="{{ route('country_show') }}" class="btn btn-outline-warning btn-rounded"><i class="fa fa-reply-all"></i> Batal</a>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
+
+
+{% block addjs %}
+    {{ asset('plugins/custom-select/custom-select.min.js')|script_tag }}
+    {{ asset('plugins/bootstrap-select/bootstrap-select.min.js')|script_tag }}
+    {{ asset('plugins/multiselect/js/jquery.multi-select.js')|script_tag }}
+    {{ asset('js/select2/select2.js')|script_tag }}
+
+    {{ theme_asset('js/validator.js')|script_tag }}
+
+
+{% endblock %}

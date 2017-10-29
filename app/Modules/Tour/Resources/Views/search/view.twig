@@ -1,0 +1,304 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/css/select2.min.css')| css_tag }}
+    {{ asset('plugins/select2/css/select2-bootstrap.min.css')| css_tag }}
+
+    {{ asset('plugins/multiselect/css/multi-select.css')| css_tag }}
+
+    {{ asset('plugins/footable/css/footable.core.css') | css_tag }}
+
+    {{ asset('plugins/owl.carousel/owl.carousel.min.css') | css_tag }}
+    {{ asset('plugins/owl.carousel/owl.theme.default.css') | css_tag }}
+
+{% endblock %}
+
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title"><i class="ti ti-shopping-cart"></i> {{ TourInfo.name }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('tour_search_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">{{ TourInfo.name }}</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if session('ScsMsg') %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') | raw}}
+        </div>
+    {% endif %}
+
+    {% if session('WrngMsg') %}
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('WrngMsg') | raw }}
+        </div>
+    {% endif %}
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading"><i class="fa fa-globe"></i> {{ TourInfo.name }} <small>Durasi : {{ TourInfo.duration }}</small>
+                    <div class="pull-right">
+                        <a href="#" data-perform="panel-collapse"><i class="ti-minus"></i></a>
+                    </div>
+                </div>
+                <div class="panel-wrapper collapse in" aria-expanded="true">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="panel-wrapper p-b-10 collapse in">
+                                    <div id="owl-demo" class="owl-carousel owl-theme">
+                                        {% for Banner in TourInfo.tour_banner %}
+                                        {% set PathBanner = call_helpers('getPathBanner') %}
+                                        {% set BannerUrl = call_helpers_two('get_GenerateLinkImageUrl', PathBanner, Banner.file ) %}
+                                        <div class="item"><img src="{{ BannerUrl }}" alt="Owl Image"></div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="white-box p-l-20 p-r-20">
+                                <form class="form-material form-horizontal" method="post" action="{% if Type == 3 %}{{ route('tour_search_checkquotas') }}{% elseif Type == 1 %} {% if HotOpenTrip > 0 %} {{ route('tour_search_checkquotas') }} {% endif %}{% endif %}" role="form" data-toggle="validator">
+                                    {{ csrf_field() }}
+
+                                    <!-- PARAM -->
+                                        <input type="hidden" id="tour_id" name="tour_id" value="{{ TourInfo.id }}">
+                                        <input type="hidden" id="type" name="type" value="{{ Type }}">
+                                    <!-- PARAM -->
+
+                                    <div class="form-group" align="center">
+                                        <label class="col-md-12">Harga mulai dari <h1 class="text-danger"><strong><i>IDR {{ call_helpers('set_numberformat', TourInfo.price) }}</i></strong></h1></label>
+                                    </div>
+                                    <hr>
+                                    {% if Type == 3 %}
+                                    <div class="form-group ">
+                                        <div class="col-md-6">
+                                            <label class="col-md-12"><i>Region</i></label>
+                                            <div class="col-md-12">
+                                                <input type="text" class="form-control form-control-line" value="{{ TourInfo.region.name }}" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="col-md-12"><i>Negara</i></label>
+                                            <div class="col-md-12">
+                                                <input type="text" class="form-control form-control-line " value="{{ TourInfo.country.name }}" readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <label class="col-md-12"><i>Destinasi</i></label>
+                                        <div class="col-md-12">
+                                            <input type="text" class="form-control form-control-line" value="{{ TourInfo.destination.name }}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group {% if (errors.has('open_trip') or errors.has('quota')) %}has-danger{% endif %}">
+                                        <div class="col-md-6">
+                                            <label class="col-md-12"><i>Jadwal</i></label>
+                                            <div class="col-md-12">
+                                                <select name="open_trip" class="form-control select2" id="open_trip">
+                                                    <option value="0">--Pilih Jadwal--</option>
+                                                    {% set ListScheduleOpentrip = call_helpers_two('get_ListScheduleOpentrip',TourInfo.id) %}
+                                                    {% for key,value in ListScheduleOpentrip %}
+                                                        <option value="{{ key }}">{{ value }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                {% if (errors.has('open_trip')) %}<div class="form-control-feedback"> {{ errors.first('open_trip') }} </div>{% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="col-md-12"><i>Berapa Orang?</i></label>
+                                            <div class="col-md-12">
+                                                <input type="text" class="form-control form-control-line quota" name="quota" id="quota" value="" placeholder="Masukan jumlah" required data-error="Masukan Jumlah Orang">
+                                                <div class="help-block with-errors"></div>
+                                                {% if (errors.has('quota')) %}<div class="form-control-feedback"> {{ errors.first('quota') }} </div>{% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="form-group ">
+                                        <div class="col-md-12">
+                                            <button class="btn btn-block btn-outline-danger">PESAN SEKARANG</button>
+                                        </div>
+                                    </div>
+                                    {% elseif Type == 1 %}
+                                        {{ TourInfo.opentrip.count() }}
+                                        {% if HotOpenTrip > 0  %}
+                                            <div class="form-group ">
+                                                <div class="col-md-6">
+                                                    <label class="col-md-12"><i>Region</i></label>
+                                                    <div class="col-md-12">
+                                                        <input type="text" class="form-control form-control-line" value="{{ TourInfo.region.name }}" readonly>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="col-md-12"><i>Negara</i></label>
+                                                    <div class="col-md-12">
+                                                        <input type="text" class="form-control form-control-line " value="{{ TourInfo.country.name }}" readonly>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group ">
+                                                <label class="col-md-12"><i>Destinasi</i></label>
+                                                <div class="col-md-12">
+                                                    <input type="text" class="form-control form-control-line" value="{{ TourInfo.destination.name }}" readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-group {% if (errors.has('open_trip') or errors.has('quota')) %}has-danger{% endif %}">
+                                                <div class="col-md-6">
+                                                    <label class="col-md-12"><i>Jadwal</i></label>
+                                                    <div class="col-md-12">
+                                                        <select name="open_trip" class="form-control select2" id="open_trip">
+                                                            <option value="0">--Pilih Jadwal--</option>
+                                                            {% set ListScheduleOpentrip = call_helpers_two('get_ListScheduleOpentrip',TourInfo.id) %}
+                                                            {% for key,value in ListScheduleOpentrip %}
+                                                                <option value="{{ key }}">{{ value }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                        {% if (errors.has('open_trip')) %}<div class="form-control-feedback"> {{ errors.first('open_trip') }} </div>{% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="col-md-12"><i>Berapa Orang?</i></label>
+                                                    <div class="col-md-12">
+                                                        <input type="text" class="form-control form-control-line quota" name="quota" id="quota" value="" placeholder="Masukan jumlah" required data-error="Masukan Jumlah Orang">
+                                                        <div class="help-block with-errors"></div>
+                                                        {% if (errors.has('quota')) %}<div class="form-control-feedback"> {{ errors.first('quota') }} </div>{% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="form-group ">
+                                                <div class="col-md-12">
+                                                    <button class="btn btn-block btn-outline-danger">PESAN SEKARANG</button>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="form-group ">
+                                                <label class="col-md-12"><i>Region</i></label>
+                                                <div class="col-md-12">
+                                                    <input type="text" class="form-control form-control-line" value="{{ TourInfo.region.name }}" readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-group ">
+                                                <label class="col-md-12"><i>Negara</i></label>
+                                                <div class="col-md-12">
+                                                    <input type="text" class="form-control form-control-line " value="{{ TourInfo.country.name }}" readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-group ">
+                                                <label class="col-md-12"><i>Destinasi</i></label>
+                                                <div class="col-md-12">
+                                                    <input type="text" class="form-control form-control-line" value="{{ TourInfo.destination.name }}" readonly>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="form-group ">
+                                            <label class="col-md-12"><i>Region</i></label>
+                                            <div class="col-md-12">
+                                                <input type="text" class="form-control form-control-line" value="{{ TourInfo.region.name }}" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label class="col-md-12"><i>Negara</i></label>
+                                            <div class="col-md-12">
+                                                <input type="text" class="form-control form-control-line " value="{{ TourInfo.country.name }}" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="form-group ">
+                                            <label class="col-md-12"><i>Destinasi</i></label>
+                                            <div class="col-md-12">
+                                                <input type="text" class="form-control form-control-line" value="{{ TourInfo.destination.name }}" readonly>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <section class="m-t-40">
+                                    <div class="sttabs tabs-style-flip">
+                                        <nav>
+                                            <ul>
+                                                <li><a href="#section-flip-1" class="fa fa-check-square-o">  <span>Itinerary</span></a></li>
+                                                <li><a href="#section-flip-2" class="fa  fa-file-text-o">  <span>Syarat & Ketentuan</span></a></li>
+                                            </ul>
+                                        </nav>
+                                        <div class="content-wrap">
+                                            <section id="section-flip-1">
+                                                <p>{{ TourInfo.itinerary | raw }}</p></section>
+                                            <section id="section-flip-2">
+                                                <p>{{ TourInfo.term_condition | raw }}</p></section>
+                                        </div>
+                                        <!-- /content -->
+                                    </div>
+                                    <!-- /tabs -->
+                                </section>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block addmodal %}
+
+{% endblock %}
+
+{% block addjs %}
+    {{ asset('plugins/multiselect/js/jquery.multi-select.js')| script_tag }}
+
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/js/select2.full.min.js')| script_tag }}
+    {{ asset('js/select2/basic.js')|script_tag }}
+
+    {{ asset('plugins/footable/js/footable.all.min.js')| script_tag }}
+    {{ theme_asset('js/footable-init.js')|script_tag }}
+
+    <!-- jQuery for carousel -->
+    {{ asset('plugins/owl.carousel/owl.carousel.min.js')| script_tag }}
+    {{ asset('plugins/owl.carousel/owl.custom.js')| script_tag }}
+
+    {{ asset('modules/tour/admin/main.js')|script_tag }}
+    {{ asset('js/tab-stylish/tab-stylish.js')|script_tag }}
+
+    <!-- INPUT-MASK BUNDLE-->
+    {{ asset('plugins/jquery-inputmask/jquery.inputmask.bundle.min.js')|script_tag }}
+
+    <!-- JS INPUT-MASK -->
+    {{ asset('js/input-mask/input-mask.js')|script_tag }}
+
+
+    {{ theme_asset('js/validator.js')|script_tag }}
+
+    <script type="text/javascript">
+        (function() {
+
+            [].slice.call(document.querySelectorAll('.sttabs')).forEach(function(el) {
+                new CBPFWTabs(el);
+            });
+
+        })();
+    </script>
+
+{% endblock %}

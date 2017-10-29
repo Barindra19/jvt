@@ -1,0 +1,132 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+{{ asset('plugins/icheck/skins/all.css')|css_tag }}
+{{ asset('plugins/select2/css/select2.min.css')|css_tag }}
+{{ asset('plugins/select2/css/select2-bootstrap.min.css')|css_tag }}
+{% endblock %}
+
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <a href="{{ route('user_show') }}" class="btn btn-default pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="fa fa-reply-all"></i> Kembali</a>
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('user_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">Reset Password</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+{% block body %}
+    {% if session('ScsMsg') %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') }}
+        </div>
+    {% endif %}
+
+    {% if session('ErrMsg') %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ErrMsg') }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-info">
+                <div class="panel-heading"><small> {{ MenuDescription }}</small>
+                    <div class="pull-right"><a href="#" data-perform="panel-collapse"><i class="ti-minus"></i></a> </div>
+                </div>
+                <div class="panel-wrapper collapse in" aria-expanded="true">
+                    <div class="panel-body">
+                        <form class="form" action="{{ route('user_changed_password_act') }}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post">
+                            {{ csrf_field() }}
+
+                            <!-- PARAM -->
+                            <input type="hidden" id="id" name="id" value="{{ id }}" />
+                            <!-- PARAM -->
+
+                            <!-- NAME -->
+                            <div class="form-group row {% if (errors.has('name')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Name</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('name')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('name') }}{% else %}{{ Users.name }}{% endif %}" id="name" name="name" readonly>
+                                    {% if (errors.has('name')) %}<div class="form-control-feedback"> {{ errors.first('name') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END NAME -->
+
+                            <!-- EMAIL -->
+                            <div class="form-group row {% if (errors.has('email')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Email</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('email')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('email') }}{% else %}{{ Users.email }}{% endif %}" id="email" name="email" readonly>
+                                    {% if (errors.has('email')) %}<div class="form-control-feedback"> {{ errors.first('email') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END EMAIL -->
+
+                            <hr>
+                            <h3> Reset Password </h3>
+
+                            <!-- PASSWORD -->
+                            <div class="form-group row {% if (errors.has('password')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Password *</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('password')) %}form-control-danger{% endif %}" type="password" value="{{ old('password') }}" id="password" name="password">
+                                    {% if (errors.has('password')) %}<div class="form-control-feedback"> {{ errors.first('password') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END PASSWORD -->
+
+                            <!-- PASSWORD CONFIRMATION -->
+                            <div class="form-group row {% if (errors.has('password_confirmation')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Password Confirmation *</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('password')) %}form-control-danger{% endif %}" type="password" value="" id="password_confirmation" name="password_confirmation">
+                                    {% if (errors.has('password_confirmation')) %}<div class="form-control-feedback"> {{ errors.first('password_confirmation') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END PASSWORD CONFIRMATION -->
+
+
+                            <hr>
+                            <button type="submit" class="btn btn-success waves-effect waves-light m-r-10"><i class="fa fa-refresh"></i> reset</button>
+                            <a href="{{ route('user_show') }}" class="btn btn-default btn-outline"><i class="fa fa-times-circle"></i> Batal</a>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block addjs %}
+
+<!-- VALIDATION -->
+{{ asset('plugins/jquery-validation/js/jquery.validate.min.js')|script_tag }}
+{{ asset('plugins/jquery-validation/js/additional-methods.min.js')|script_tag }}
+{{ asset('modules/branch/validate.js')|script_tag }}
+
+<!-- DROPDOWN -->
+{{ asset('plugins/select2/js/select2.full.min.js')|script_tag }}
+
+<!-- INPUT-MASK BUNDLE-->
+{{ asset('plugins/jquery-inputmask/jquery.inputmask.bundle.min.js')|script_tag }}
+<!-- JS INPUT-MASK -->
+{{ asset('js/input-mask/input-mask.js')|script_tag }}
+
+
+{% endblock %}

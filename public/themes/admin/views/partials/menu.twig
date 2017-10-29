@@ -1,0 +1,40 @@
+{% if not app.session.get('Menu') %}
+    {{ call_helpers('createMenu') }}
+{% endif %}
+    {#{{ dump(app.session.get('Menu')) }}#}
+{% for  Menu in app.session.get('Menu') %}
+<li>
+    <a href="{% if Menu.arrSubMenu %}javascript:void(0);{% else %} {% if Menu.url %}{{ url(Menu.url) }}{% endif %}{% endif %}" class="waves-effect {{ active_class_path(Menu.url, 'active') }}">
+        <i class="{{ Menu.icon }}"></i>
+        <span class="hide-menu">
+        {{ Menu.name }}
+        {% if Menu.arrSubMenu %}
+            <span class="fa arrow"></span>
+        {% endif %}
+        </span>
+    </a>
+    {% if Menu.arrSubMenu %}
+        <ul class="nav nav-second-level">
+            {% for SubMenu in Menu.arrSubMenu %}
+            <li class="{{ active_class_path(SubMenu.url, 'active') }}">
+                <a href="{% if SubMenu.arrThirdMenu %}javascript:void(0);{% else %} {% if SubMenu.url %}{{ url(SubMenu.url) }}{% endif %}{% endif %}" {% if SubMenu.arrThirdMenu %} class=" waves-effect "{% endif %}>
+                    <i class="{{ SubMenu.icon }}"></i> {{ SubMenu.name }}
+                    {% if SubMenu.arrThirdMenu %}
+                        <span class="fa arrow"></span>
+                    {% endif %}
+                </a>
+                {% if SubMenu.arrThirdMenu %}
+                    <ul class="nav nav-third-level">
+                        {% for ThirdMenu in SubMenu.arrThirdMenu %}
+                            <li class="{{ active_class_path(ThirdMenu.url, 'active') }}">
+                                <a href="{{ url(ThirdMenu.url) }}"> <i class="{{ ThirdMenu.icon }}"></i> {{ ThirdMenu.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>
+{% endfor %}

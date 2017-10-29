@@ -1,0 +1,350 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+
+    {{ asset('plugins/html5-editor/bootstrap-wysihtml5.css') | css_tag }}
+    {{ asset('plugins/dropify/dist/css/dropify.min.css') | css_tag }}
+
+{% endblock %}
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li>{{ MenuActive }}</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+{% block body %}
+{% if Setting.logo %}
+    {% set getPathLogo = call_helpers('getPathLogo') %}
+    {% set Logo = call_helpers_two('get_GenerateLinkImageUrl', getPathLogo, Setting.logo) %}
+{% endif %}
+    {% if Setting.icon %}
+        {% set getPathIcon = call_helpers('getPathIcon') %}
+        {% set Icon = call_helpers_two('get_GenerateLinkImageUrl', getPathIcon, Setting.icon) %}
+    {% endif %}
+
+    {% if (session('ScsMsg')) %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('ErrMsg')) %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ErrMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('InfoMsg')) %}
+        <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('InfoMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('WrngMsg')) %}
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('WrngMsg') | raw }}
+        </div>
+    {% endif %}
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-info">
+                <div class="panel-heading"><small> {{ MenuDescription }}</small></div>
+                <div class="panel-wrapper collapse in" aria-expanded="true">
+                    <div class="panel-body">
+                        <form class="form" action="{{ route('setting_saved') }}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post" enctype="multipart/form-data">
+                            {{ csrf_field() }}
+
+                            <!-- PARAM -->
+                            <input type="hidden" id="id" name="id" value="{{ id }}" />
+                            <!-- PARAM -->
+
+                            <!-- LOGO -->
+                            <div class="form-group row {% if (errors.has('logo')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Logo</label>
+                                <div class="col-4">
+                                    <input type="file" data-default-file="{{ Logo }}" name="logo" id="input-file-now" class="dropify" >
+                                    {% if (errors.has('logo')) %}<div class="form-control-feedback"> {{ errors.first('logo') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END LOGO -->
+
+                            <!-- ICON -->
+                            <div class="form-group row {% if (errors.has('icon')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Icon</label>
+                                <div class="col-4">
+                                    <input type="file" data-default-file="{{ Icon }}" name="icon" id="input-file-now" class="dropify" >
+                                    {% if (errors.has('icon')) %}<div class="form-control-feedback"> {{ errors.first('icon') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END ICON -->
+
+
+                            <!-- PROJECT_NAME -->
+                            <div class="form-group row {% if (errors.has('project_name')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Project Name</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('project_name')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('project_name') }}{% else %}{{ Setting.project_name }}{% endif %}" id="name" name="project_name">
+                                    {% if (errors.has('project_name')) %}<div class="form-control-feedback"> {{ errors.first('project_name') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END NAME -->
+
+                            <!-- TITLE -->
+                            <div class="form-group row {% if (errors.has('title')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Title</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('title')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('title') }}{% else %}{{ Setting.title }}{% endif %}" id="title" name="title">
+                                    {% if (errors.has('title')) %}<div class="form-control-feedback"> {{ errors.first('title') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END TITLE -->
+
+                            <!-- KEYWORDS -->
+                            <div class="form-group row {% if (errors.has('keywords')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Keyword</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('keywords')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('keywords') }}{% else %}{{ Setting.keywords }}{% endif %}" id="keywords" name="keywords">
+                                    {% if (errors.has('keywords')) %}<div class="form-control-feedback"> {{ errors.first('keywords') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END KEYWORDS -->
+
+                            <!-- DESCRIPTION -->
+                            <div class="form-group row {% if (errors.has('description')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Description</label>
+                                <div class="col-10">
+                                    <textarea class="form-control {% if (errors.has('description')) %}form-control-danger{% endif %}" id="description" name="description"  rows="5">{% if state == 'add' %}{{ old('description') }}{% else %}{{ Setting.description }}{% endif %}</textarea>
+                                    {% if (errors.has('description')) %}<div class="form-control-feedback"> {{ errors.first('description') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END DESCRIPTION -->
+
+                            <h4 class="text-success"><strong>META TAG</strong></h4>
+                            <hr>
+
+                            <!-- META KEYWORDS -->
+                            <div class="form-group row {% if (errors.has('meta_keywords')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Meta Keyword</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('meta_keywords')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('meta_keywords') }}{% else %}{{ Setting.meta_keywords }}{% endif %}" id="meta_keywords" name="meta_keywords">
+                                    {% if (errors.has('meta_keywords')) %}<div class="form-control-feedback"> {{ errors.first('meta_keywords') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END META KEYWORDS -->
+
+                            <!-- META DESCRIPTION -->
+                            <div class="form-group row {% if (errors.has('meta_description')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Meta Description</label>
+                                <div class="col-10">
+                                    <textarea class="form-control {% if (errors.has('meta_description')) %}form-control-danger{% endif %}" id="meta_description" name="meta_description" rows="5">{% if state == 'add' %}{{ old('meta_description') }}{% else %}{{ Setting.meta_description }}{% endif %}</textarea>
+                                    {% if (errors.has('meta_description')) %}<div class="form-control-feedback"> {{ errors.first('meta_description') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END META  DESCRIPTION -->
+
+                            <h4 class="text-success"><strong><i>Contact Information</i></strong></h4>
+                            <hr>
+
+                            <!-- PHONE -->
+                            <div class="form-group row {% if (errors.has('phone')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Phone</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('phone')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('phone') }}{% else %}{{ Setting.phone }}{% endif %}" id="phone" name="phone">
+                                    {% if (errors.has('phone')) %}<div class="form-control-feedback"> {{ errors.first('phone') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END PHONE -->
+
+                            <!-- HANDPHONE -->
+                            <div class="form-group row {% if (errors.has('mobile')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Handphone</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('mobile')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('mobile') }}{% else %}{{ Setting.mobile }}{% endif %}" id="mobile" name="mobile">
+                                    {% if (errors.has('mobile')) %}<div class="form-control-feedback"> {{ errors.first('mobile') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END HANDPHONE -->
+
+                            <!-- WHATSAPP -->
+                            <div class="form-group row {% if (errors.has('whatsapp')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Whatsapp</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('whatsapp')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('whatsapp') }}{% else %}{{ Setting.whatsapp }}{% endif %}" id="whatsapp" name="whatsapp">
+                                    {% if (errors.has('whatsapp')) %}<div class="form-control-feedback"> {{ errors.first('whatsapp') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END WHATSAPP -->
+
+                            <!-- EMAIL -->
+                            <div class="form-group row {% if (errors.has('email')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Email</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('email')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('email') }}{% else %}{{ Setting.email }}{% endif %}" id="email" name="email">
+                                    {% if (errors.has('email')) %}<div class="form-control-feedback"> {{ errors.first('email') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END EMAIL -->
+
+                            <!-- ADDRESS -->
+                            <div class="form-group row {% if (errors.has('address')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Address</label>
+                                <div class="col-10">
+                                    <textarea class="form-control mymce {% if (errors.has('address')) %}form-control-danger{% endif %}" id="mymce" name="address">{% if state == 'add' %}{{ old('address') }}{% else %}{{ Setting.address }}{% endif %}</textarea>
+                                    {% if (errors.has('address')) %}<div class="form-control-feedback"> {{ errors.first('address') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END ADDRESS -->
+
+                            <h4 class="text-success"><strong><i>Sosial Media Url</i></strong></h4>
+                            <hr>
+
+                            <!-- FACEBOOK -->
+                            <div class="form-group row {% if (errors.has('facebook')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Facebook</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('facebook')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('facebook') }}{% else %}{{ Setting.facebook }}{% endif %}" id="facebook" name="facebook">
+                                    {% if (errors.has('facebook')) %}<div class="form-control-feedback"> {{ errors.first('facebook') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END FACEBOOK -->
+
+                            <!-- TWITTER -->
+                            <div class="form-group row {% if (errors.has('twitter')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Twitter</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('twitter')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('twitter') }}{% else %}{{ Setting.twitter }}{% endif %}" id="twitter" name="twitter">
+                                    {% if (errors.has('twitter')) %}<div class="form-control-feedback"> {{ errors.first('twitter') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END TWITTER -->
+
+                            <!-- INSTAGRAM -->
+                            <div class="form-group row {% if (errors.has('instagram')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Instagram</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('instagram')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('instagram') }}{% else %}{{ Setting.instagram }}{% endif %}" id="instagram" name="instagram">
+                                    {% if (errors.has('instagram')) %}<div class="form-control-feedback"> {{ errors.first('instagram') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END INSTAGRAM -->
+
+                            <!-- GOOGLE PLUS -->
+                            <div class="form-group row {% if (errors.has('googleplus')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Google Plus</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('googleplus')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('googleplus') }}{% else %}{{ Setting.googleplus }}{% endif %}" id="googleplus" name="googleplus">
+                                    {% if (errors.has('googleplus')) %}<div class="form-control-feedback"> {{ errors.first('googleplus') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END GOOGLE PLUS -->
+
+                            <!-- LINKEDIN -->
+                            <div class="form-group row {% if (errors.has('linkedin')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Linkedin</label>
+                                <div class="col-10">
+                                    <input class="form-control {% if (errors.has('linkedin')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('linkedin') }}{% else %}{{ Setting.linkedin }}{% endif %}" id="linkedin" name="linkedin">
+                                    {% if (errors.has('linkedin')) %}<div class="form-control-feedback"> {{ errors.first('linkedin') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END LINKEDIN -->
+
+
+                            <h4 class="text-success"><strong><i>Google Analytic</i></strong></h4>
+                            <hr>
+
+
+                            <!-- GOOGLE ANALYTIC -->
+                            <div class="form-group row {% if (errors.has('google_analytic')) %}has-danger{% endif %}">
+                                <label for="example-text-input" class="col-2 col-form-label">Google Analytic</label>
+                                <div class="col-10">
+                                    <textarea class="form-control {% if (errors.has('google_analytic')) %}form-control-danger{% endif %}" id="google_analytic" name="google_analytic" rows="10">{% if state == 'add' %}{{ old('google_analytic') }}{% else %}{{ Setting.google_analytic }}{% endif %}</textarea>
+                                    {% if (errors.has('google_analytic')) %}<div class="form-control-feedback"> {{ errors.first('google_analytic') }} </div>{% endif %}
+                                </div>
+                            </div>
+                            <!-- END GOOGLE ANALYTIC -->
+
+                            <hr>
+                            <button type="submit" class="btn btn-success waves-effect waves-light m-r-10"><i class="fa fa-save"></i> Simpan</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block addmodal %}
+<!-- CONFIRM REMOVE LOGO -->
+<div class="modal fade bs-modal-sm" id="ConfirmRemove" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-danger">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">Remove Logo Confirmation!</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure??
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btn-RemoveLogoNow">Remove</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- CONFIRM REMOVE LOGO -->
+
+<!-- CONFIRM REMOVE ICON -->
+<div class="modal fade bs-modal-sm" id="ConfirmRemoveIcon" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                <h4 class="modal-title">Remove Icon Confirmation!</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure??
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal" id="btn-RemoveIconNow">Remove</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- CONFIRM REMOVE ICON -->
+{% endblock %}
+
+
+{% block addjs %}
+    {{ asset('plugins/tinymce/tinymce.min.js')| script_tag }}
+    {{ asset('js/tinymce/tinymce.js') | script_tag }}
+    {{ asset('plugins/dropify/dist/js/dropify.min.js')| script_tag }}
+    {{ asset('js/file-upload/file-upload.js') | script_tag }}
+
+{{ asset('modules/setting/main.js') | script_tag }}
+
+
+
+{% endblock %}

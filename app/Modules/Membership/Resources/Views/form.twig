@@ -1,0 +1,217 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/css/select2.min.css')| css_tag }}
+    {{ asset('plugins/select2/css/select2-bootstrap.min.css')| css_tag }}
+
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('includes_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">Tambah</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if session('ScsMsg') %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') }}
+        </div>
+    {% endif %}
+
+    {% if session('ErrMsg') %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ErrMsg') }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading"> {{ MenuDescription }}</div>
+                <div class="panel-wrapper collapse in" aria-expanded="true">
+                    <div class="panel-body">
+
+                        <form class="form" action="{{ route('membership_post') }}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post" data-toggle="validator">
+                            {{ csrf_field() }}
+                            <div class="form-body">
+
+                                <div class="alert alert-blue-dark">Personal Detail</div>
+                                <hr class="m-t-0 m-b-40">
+
+                                <!-- JENIS -->
+                                <div class="form-group row {% if (errors.has('store_name')) %}has-danger{% endif %}">
+                                    <label for="example-text-input" class="col-2 col-form-label">Jenis Member <label class="text-danger">*</label></label>
+                                    <div class="col-6">
+                                        <select name="level" class="form-control select2" id="level">
+                                            {% set ListLevelbyUser = call_helpers('get_ListLevelbyUser') %}
+                                            <option value="0">-- Pilih Jenis Member --</option>
+                                            {% for key,value in ListLevelbyUser %}
+                                                <option value="{{ key }}" {{ Type == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <!-- END JENIS -->
+
+                                <!-- CABANG -->
+                                <div id="filtercabang" style="display: none;">
+                                    <div class="form-group row {% if (errors.has('cabang')) %}has-danger{% endif %}">
+                                        <label for="example-text-input" class="col-2 col-form-label"></label>
+                                        <div class="col-6">
+                                            <select name="cabang" class="form-control select2" id="cabang"></select>
+                                            <div class="help-block with-errors"> Silakan Pilih Cabang Upline</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END CABANG -->
+
+
+                                <!-- MASTER DISTRIBUTOR -->
+                                <div id="filtermasterdistributor" style="display: none;">
+                                    <div class="form-group row {% if (errors.has('masterdistributor')) %}has-danger{% endif %}">
+                                        <label for="example-text-input" class="col-2 col-form-label"></label>
+                                        <div class="col-6">
+                                            <select name="masterdistributor" class="form-control select2" id="masterdistributor"></select>
+                                            <div class="help-block with-errors"> Silakan Pilih Master Distributor Upline</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END MASTER DISTRIBUTOR -->
+
+                                <!-- DISTRIBUTOR -->
+                                <div id="filterdistributor" style="display: none;">
+                                    <div class="form-group row {% if (errors.has('distributor')) %}has-danger{% endif %}">
+                                        <label for="example-text-input" class="col-2 col-form-label"></label>
+                                        <div class="col-6">
+                                            <select name="distributor" class="form-control select2" id="distributor"></select>
+                                            <div class="help-block with-errors"> Silakan Pilih Distributor Upline</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END DISTRIBUTOR -->
+
+                                <!-- STORE NAME -->
+                                <div class="form-group row {% if (errors.has('store_name')) %}has-danger{% endif %}">
+                                    <label for="example-text-input" class="col-2 col-form-label">Nama Jasa Tour <label class="text-danger">*</label></label>
+                                    <div class="col-6">
+                                        <input class="form-control {% if (errors.has('store_name')) %}form-control-danger{% endif %}" type="text" value="{{ old('store_name') }}" id="store_name" name="store_name" data-error="Nama Jasa Tour Wajib diisi." required>
+                                        {% if (errors.has('store_name')) %}<div class="form-control-feedback"> {{ errors.first('store_name') }} </div>{% endif %}
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <!-- END STORE NAME -->
+
+                                <!-- NAMA PEMILIK -->
+                                <div class="form-group row {% if (errors.has('name')) %}has-danger{% endif %}">
+                                    <label for="example-text-input" class="col-2 col-form-label">Nama Pemilik <label class="text-danger">*</label></label>
+                                    <div class="col-6">
+                                        <input class="form-control {% if (errors.has('name')) %}form-control-danger{% endif %}" type="text" value="{{ old('name') }}" id="name" name="name" data-error="Nama Pemilik Wajib diisi." required>
+                                        {% if (errors.has('name')) %}<div class="form-control-feedback"> {{ errors.first('name') }} </div>{% endif %}
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <!-- END NAMA PEMILIK -->
+
+                                <!-- ADDRESS -->
+                                <div class="form-group row {% if (errors.has('address')) %}has-danger{% endif %}">
+                                    <label for="example-text-input" class="col-2 col-form-label">Alamat <label class="text-danger">*</label></label>
+                                    <div class="col-6">
+                                        <textarea id="address" name="address" class="form-control {% if (errors.has('address')) %}form-control-danger{% endif %}" data-error="Alamat Wajib diisi." required>{{ old('address') }}</textarea>
+                                        {% if (errors.has('address')) %}<div class="form-control-feedback"> {{ errors.first('address') }} </div>{% endif %}
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <!-- END ADDRESS -->
+
+                                <!-- PROVINCE -->
+                                <div class="form-group row {% if (errors.has('province')) %}has-danger{% endif %}">
+                                    <label for="example-text-input" class="col-2 col-form-label">Propinsi <label class="text-danger">*</label></label>
+                                    <div class="col-6">
+                                        <select name="province" class="form-control select2" id="province">
+                                            {% set ListProvince = call_helpers('get_ListProvince') %}
+                                            <option value="0">-- Pilih Propinsi --</option>
+                                            {% for key,value in ListProvince %}
+                                                <option value="{{ key }}" {{ Type == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <!-- END PROVINCE -->
+
+                                <div class="alert alert-blue-dark">Kontak Detail</div>
+
+                                <!-- NO. TELP -->
+                                <div class="form-group row {% if (errors.has('phone')) %}has-danger{% endif %}">
+                                    <label for="example-text-input" class="col-2 col-form-label">No. Telp <label class="text-danger">*</label></label>
+                                    <div class="col-6">
+                                        <input class="form-control {% if (errors.has('phone')) %}form-control-danger{% endif %}" type="text" value="{{ old('phone') }}" id="phone" name="phone" data-error="No. Telp Wajib diisi." required>
+                                        {% if (errors.has('phone')) %}<div class="form-control-feedback"> {{ errors.first('phone') }} </div>{% endif %}
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <!-- END NO. TELP -->
+
+                                <!-- NO. HANDPHONE -->
+                                <div class="form-group row {% if (errors.has('mobile')) %}has-danger{% endif %}">
+                                    <label for="example-text-input" class="col-2 col-form-label">No. Handphone <label class="text-danger">*</label></label>
+                                    <div class="col-6">
+                                        <input class="form-control {% if (errors.has('mobile')) %}form-control-danger{% endif %}" type="text" value="{{ old('mobile') }}" id="mobile" name="mobile" data-error="No. Handphone Wajib diisi." required>
+                                        {% if (errors.has('mobile')) %}<div class="form-control-feedback"> {{ errors.first('mobile') }} </div>{% endif %}
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <!-- END NO. HANDPHONE -->
+
+                                <!-- EMAIL -->
+                                <div class="form-group row {% if (errors.has('email')) %}has-danger{% endif %}">
+                                    <label for="example-text-input" class="col-2 col-form-label">Email <label class="text-danger">*</label></label>
+                                    <div class="col-6">
+                                        <input class="form-control {% if (errors.has('email')) %}form-control-danger{% endif %}" type="text" value="{{ old('email') }}" id="email" name="email" data-error="Email Wajib diisi." required>
+                                        {% if (errors.has('email')) %}<div class="form-control-feedback"> {{ errors.first('email') }} </div>{% endif %}
+                                        <div class="help-block with-errors"></div>
+                                    </div>
+                                </div>
+                                <!-- END EMAIL -->
+
+                            </div>
+
+
+                            <hr>
+                            <button type="submit" class="btn btn-outline-primary btn-rounded"><i class="fa fa-save"></i> Simpan</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+
+{% block addjs %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/js/select2.full.min.js')| script_tag }}
+    {{ asset('js/select2/basic.js')|script_tag }}
+
+    {{ theme_asset('js/validator.js') | script_tag }}
+    {{ asset('modules/membership/main.js') | script_tag }}
+{% endblock %}

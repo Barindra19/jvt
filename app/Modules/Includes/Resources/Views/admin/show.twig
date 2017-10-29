@@ -1,0 +1,214 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    {{ asset('plugins/footable/css/footable.core.css') | css_tag }}
+
+{% endblock %}
+
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            {% if call_helpers('bool_CheckAccessUser','level-admin-add') %}
+            <a href="{{ route('includes_add') }}" class="btn btn-danger pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="glyphicon glyphicon-plus"></i> Form</a>
+            {% endif %}
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li class="active">{{ MenuActive }}</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+
+{% block body %}
+    {% if session('ScsMsg') %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title m-b-0">{{ MenuActive }}</h3>
+                <p class="text-muted m-b-30">{{ MenuDescription }}</p>
+                <div class="table-responsive">
+                    <table id="demo-foo-addrow" class="table-striped table-hover table color-table info-table" data-page-size="10">
+                        <thead>
+                        <tr>
+                            <th data-sort-initial="true">Name</th>
+                            <th data-sort-ignore="true">Icon</th>
+                            <th data-hide="phone, tablet">Status</th>
+                            <th data-sort-ignore="true" class="min-width">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for Include in Includes %}
+                        <tr>
+                            <td>{{ Include.name }}</td>
+                            <td><i class="{{ Include.icon }}"></i></td>
+                            <td>
+                                {% if (Include.is_active == 1) %}
+                                    <span class="label label-sm label-success">active</span>
+                                {% else %}
+                                    <span class="label label-sm label-danger">inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if call_helpers('bool_CheckAccessUser','include-admin-edit') %}
+                                    <a href="{{ route('includes_edit', Include.id) }}" class="btn btn-outline-primary btn-rounded" ><i class="fa fa-edit"></i></a>
+                                {% endif %}
+
+                                {% if call_helpers('bool_CheckAccessUser','include-admin-delete') %}
+                                    <a href="javascript:void(0);" class="btn btn-outline-danger btn-rounded" onclick="deleteList({{ Include.id }})"><i class="fa fa-trash"></i></a>
+                                {% endif %}
+
+                                {% if Include.is_active  == 1 %}
+                                    {% if call_helpers('bool_CheckAccessUser','include-admin-inactive') %}
+                                        <a href="javascript:void(0);" class="btn btn-outline-warning btn-rounded" onclick="inactiveList({{ Include.id }})"><i class="fa fa-ban"></i></a>
+                                    {% endif %}
+                                {% else %}
+                                    {% if call_helpers('bool_CheckAccessUser','include-admin-activate') %}
+                                        <a href="javascript:void(0);" class="btn btn-outline-success btn-rounded" onclick="activateList({{ Include.id }})"><i class="fa fa-check-circle"></i></a>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="4">
+                                <div class="text-right">
+                                    <ul class="pagination">
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block addmodal %}
+    <!-- Delete -->
+    <div class="modal fade bs-modal-sm" id="ConfirmDelete" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-danger">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">Delete Confirmation!</h4>
+                </div>
+                <div class="modal-body">
+                    Are you sure??
+                    <input type="hidden" name="id" id="id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn dark btn-danger" data-dismiss="modal" onclick="ActionDelete()">Delete</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- Delete -->
+
+    <!-- INACTIVE -->
+    <div class="modal fade bs-modal-sm" id="ConfirmInactive" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-danger">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">Inactive Confirmation!</h4>
+                </div>
+                <div class="modal-body">
+                    Are you sure??
+                    <input type="hidden" name="id" id="id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn dark btn-warning" data-dismiss="modal" onclick="ActionInactive()">Inactive</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- INACTIVE -->
+
+    <!-- ACTIVATE -->
+    <div class="modal fade bs-modal-sm" id="ConfirmActivate" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-danger">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">Inactive Confirmation!</h4>
+                </div>
+                <div class="modal-body">
+                    Are you sure??
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn dark btn-success" data-dismiss="modal" onclick="ActionActivate()">Activate</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- ACTIVATE -->
+
+
+{% endblock %}
+
+{% block addjs %}
+    {{ asset('plugins/footable/js/footable.all.min.js')| script_tag }}
+    {{ theme_asset('js/footable-init.js')|script_tag }}
+
+<script>
+
+function deleteList(id){
+    $('#id').val(id);
+    $('#ConfirmDelete').modal('show');
+}
+
+function inactiveList(id){
+    $('#id').val(id);
+    $('#ConfirmInactive').modal('show');
+}
+
+function activateList(id){
+    $('#id').val(id);
+    $('#ConfirmActivate').modal('show');
+}
+
+
+function ActionDelete(){
+    var id = $('#id').val();
+    window.location = BASE_URL + "/includes/delete/" + id;
+}
+
+function ActionInactive(){
+    var id = $('#id').val();
+    window.location = BASE_URL + "/includes/inactive/" + id;
+}
+
+function ActionActivate(){
+    var id = $('#id').val();
+    window.location = BASE_URL + "/includes/activate/" + id;
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/css/select2.min.css')| css_tag }}
+    {{ asset('plugins/select2/css/select2-bootstrap.min.css')| css_tag }}
+
+    <!-- FILEINPUT -->
+    {{ asset('plugins/dropify/dist/css/dropify.min.css') | css_tag }}
+
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li class="active">{{ MenuActive }}</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if session('ScsMsg') %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') | raw}}
+        </div>
+    {% endif %}
+
+    {% if session('ErrMsg') %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ErrMsg') | raw}}
+        </div>
+    {% endif %}
+
+<div class="row">
+  <div class="col-md-8">
+      <div class="panel panel-primary">
+          <div class="panel-heading"><i class="ti-user"></i> {{ MenuDescription }}
+              <div class="pull-right">
+              </div>
+          </div>
+          <div class="panel-wrapper collapse in" aria-expanded="true">
+              <div class="panel-body">
+                  <form class="form-material" action="{{ route('profile_info_saved') }}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post" enctype="multipart/form-data" data-toggle="validator">
+                      {{ csrf_field() }}
+
+                      {% set PathStoreLogo    = call_helpers('getPathStoreLogo') %}
+                      {% set UrlStoreLogo     = call_helpers_two('get_GenerateLinkImageUrl', PathStoreLogo, User.logo) %}
+
+                      <!-- LOGO -->
+                      <div class="form-group row {% if (errors.has('logo')) %}has-danger{% endif %}">
+                          <label for="example-text-input" class="col-3 col-form-label">Logo <label class="text-danger">*</label></label>
+                          <div class="col-5">
+                              <input type="file" data-default-file="{{ UrlStoreLogo }}" name="logo" id="input-file-now" class="dropify" >
+                              {% if (errors.has('logo')) %}<div class="form-control-feedback"> {{ errors.first('logo') }} </div>{% endif %}
+                              <div class="help-block with-errors"></div>
+                          </div>
+                      </div>
+                      <!-- END LOGO -->
+
+                      <!-- STORE NAME -->
+                      <div class="form-group row {% if (errors.has('store_name')) %}has-danger{% endif %}">
+                          <label for="example-text-input" class="col-3 col-form-label">Nama Usaha <label class="text-danger">*</label></label>
+                          <div class="col-9">
+                              <input class="form-control {% if (errors.has('store_name')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('store_name') }}{% else %}{{ User.store_name }}{% endif %}" id="store_name" name="store_name" required data-error="Nama Usaha wajib diisi">
+                              {% if (errors.has('store_name')) %}<div class="form-control-feedback"> {{ errors.first('store_name') }} </div>{% endif %}
+                              <div class="help-block with-errors"></div>
+                          </div>
+                      </div>
+                      <!-- END STORE NAME -->
+
+                      <!-- STORE ADDRESS -->
+                      <div class="form-group row {% if (errors.has('store_address')) %}has-danger{% endif %}">
+                          <label for="example-text-input" class="col-3 col-form-label">Alamat Usaha <label class="text-danger">*</label></label>
+                          <div class="col-9">
+                              <input class="form-control {% if (errors.has('store_address')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('store_address') }}{% else %}{{ User.store_address }}{% endif %}" id="store_address" name="store_address" required data-error="Alamat Usaha wajib diisi">
+                              {% if (errors.has('store_address')) %}<div class="form-control-feedback"> {{ errors.first('store_address') }} </div>{% endif %}
+                              <div class="help-block with-errors"></div>
+                          </div>
+                      </div>
+                      <!-- END STORE ADDRESS -->
+
+                      <!-- PHONE -->
+                      <div class="form-group row {% if (errors.has('phone')) %}has-danger{% endif %}">
+                          <label for="example-text-input" class="col-3 col-form-label">No. Telp / HP. <label class="text-danger">*</label></label>
+                          <div class="col-9">
+                              <input class="form-control {% if (errors.has('phone')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('phone') }}{% else %}{{ User.phone }}{% endif %}" id="phone" name="phone" required data-error="No. Telp. wajib diisi">
+                              {% if (errors.has('phone')) %}<div class="form-control-feedback"> {{ errors.first('phone') }} </div>{% endif %}
+                              <div class="help-block with-errors"></div>
+                          </div>
+                      </div>
+                      <!-- END PHONE -->
+
+                      <!-- EMAIL -->
+                      <div class="form-group row {% if (errors.has('email')) %}has-danger{% endif %}">
+                          <label for="example-text-input" class="col-3 col-form-label">Email <label class="text-danger">*</label></label>
+                          <div class="col-9">
+                              <input class="form-control {% if (errors.has('email')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('email') }}{% else %}{{ User.email }}{% endif %}" id="email" name="email" readonly>
+                              {% if (errors.has('email')) %}<div class="form-control-feedback"> {{ errors.first('email') }} </div>{% endif %}
+                              <div class="help-block with-errors"></div>
+                          </div>
+                      </div>
+                      <!-- END EMAIL -->
+
+                      <!-- BANK -->
+                      <div class="form-group row {% if (errors.has('bank')) %}has-danger{% endif %}">
+                          <label for="example-text-input" class="col-3 col-form-label">Nama Bank <label class="text-danger">*</label></label>
+                          <div class="col-9">
+                              <select name="bank" class="form-control select2" id="bank">
+                                  <option value="0">--Pilih Bank--</option>
+                                  {% set ListBank = call_helpers_two('get_ListBank') %}
+                                  {% for key,value in ListBank %}
+                                      <option value="{{ key }}" {{ User.bank_id == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                  {% endfor %}
+                              </select>
+                              {% if (errors.has('bank')) %}<div class="form-control-feedback"> {{ errors.first('bank') }} </div>{% endif %}
+                              <div class="help-block with-errors"></div>
+                          </div>
+                      </div>
+                      <!-- END BANK -->
+
+                      <!-- ACCOUNT NUMBER -->
+                      <div class="form-group row {% if (errors.has('account_number')) %}has-danger{% endif %}">
+                          <label for="example-text-input" class="col-3 col-form-label">No. Rekening <label class="text-danger">*</label></label>
+                          <div class="col-9">
+                              <input class="form-control {% if (errors.has('account_number')) %}form-control-danger{% endif %}" type="text" value="{% if state == 'add' %}{{ old('account_number') }}{% else %}{{ User.account_number }}{% endif %}" id="account_number" name="account_number" required data-error="No. Rekening wajib diisi">
+                              {% if (errors.has('account_number')) %}<div class="form-control-feedback"> {{ errors.first('account_number') }} </div>{% endif %}
+                              <div class="help-block with-errors"></div>
+                          </div>
+                      </div>
+                      <!-- END ACCOUNT NUMBER -->
+
+                      <hr>
+                      <button type="submit" class="btn btn-success waves-effect waves-light m-r-10"><i class="fa fa-save"></i> Simpan</button>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+    <div class="col-md-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading"><i class="ti-lock"></i> Ubah Password
+                <div class="pull-right">
+                </div>
+            </div>
+            <div class="panel-wrapper collapse in" aria-expanded="true">
+                <div class="panel-body">
+                    <form class="form-material" action="{{ route('profile_changed_password_act') }}" name="form_changed" id="form_changed" method="post" data-toggle="validator">
+                        {{ csrf_field() }}
+
+                        <!-- PASSWORD -->
+                        <div class="form-group {% if (errors.has('password')) %}has-error has-danger{% endif %}">
+                            <label class="col-md-12">Password <label class="text-danger">*</label></label>
+                            <div class="col-md-12">
+                                <input type="password" class="form-control form-control-line {% if (errors.has('password')) %}form-control-danger{% endif %}" name="password" id="password" required data-error="Password wajib diisi">
+                                <div class="help-block with-errors"></div>
+                                {% if (errors.has('password')) %}<div class="form-control-feedback"> {{ errors.first('password') }} </div>{% endif %}
+                            </div>
+                        </div>
+                        <!-- END PASSWORD -->
+
+                        <!-- RE-TYPE -->
+                        <div class="form-group {% if (errors.has('password_confirmation')) %}has-error has-danger{% endif %}">
+                            <label class="col-md-12">Ketik ulang Password <label class="text-danger">*</label></label>
+                            <div class="col-md-12">
+                                <input type="password" class="form-control form-control-line {% if (errors.has('password_confirmation')) %}form-control-danger{% endif %}" name="password_confirmation" id="password_confirmation" required data-error="Re-Type Password wajib diisi">
+                                <div class="help-block with-errors"></div>
+                                {% if (errors.has('password_confirmation')) %}<div class="form-control-feedback"> {{ errors.first('password_confirmation') }} </div>{% endif %}
+                            </div>
+                        </div>
+                        <!-- END RE-TYPE -->
+
+                        <hr>
+                        <button type="submit" class="btn btn-danger waves-effect waves-light m-r-10"><i class="fa fa-lock"></i> Ubah Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+
+{% block addjs %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/js/select2.full.min.js')| script_tag }}
+    {{ asset('js/select2/basic.js')|script_tag }}
+
+    <!-- FILEINPUT -->
+    {{ asset('plugins/dropify/dist/js/dropify.min.js')| script_tag }}
+    {{ asset('js/file-upload/file-upload.js') | script_tag }}
+
+    {{ theme_asset('js/validator.js')|script_tag }}
+
+{% endblock %}

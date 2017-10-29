@@ -1,0 +1,7 @@
+
+    <select name="country" class="form-control select2" id="country" data-error="Region Wajib diisi." required>
+        <option value="0">-- Pilih Negara</option>
+        {% for Country in ListCountry %}
+            <option value="{{ Country.id }}">{{ Country.name }}</option>
+        {% endfor %}
+    </select>

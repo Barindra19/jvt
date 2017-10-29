@@ -1,0 +1,105 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    {{ asset('plugins/datatables/jquery.dataTables.min.css')|css_tag }}
+{% endblock %}
+
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <a href="{{ route('tour_admin_add') }}" class="btn btn-danger pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="glyphicon glyphicon-plus"></i> Form</a>
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li class="active">{{ MenuActive }}</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if session('ScsMsg') %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title m-b-0">{{ MenuActive }}</h3>
+                <p class="text-muted m-b-30">{{ MenuDescription }}</p>
+                <div class="table-responsive">
+                    <table id="tbl_{{ datatables}}" class="table-striped table-hover table-bordered table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Region</th>
+                            <th>Negara</th>
+                            <th>Destinasi</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block addmodal %}
+    <!-- Delete -->
+    <div class="modal fade bs-modal-sm" id="ConfirmDelete" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-danger">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                    <h4 class="modal-title">Delete Confirmation!</h4>
+                </div>
+                <div class="modal-body">
+                    Are you sure??
+                    <input type="hidden" name="id" id="id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn dark btn-danger" data-dismiss="modal" onclick="ActionDelete()">Delete</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- Delete -->
+
+
+{% endblock %}
+
+{% block addjs %}
+    {{ asset('plugins/datatables/jquery.dataTables.min.js') | script_tag }}
+    {{ asset('plugins/styleswitcher/jQuery.style.switcher.js')|script_tag }}
+
+<script>
+var ROUTE_DATATABLE = '{{ route('tour_admin_datatables') }}';
+
+function deleteList(id){
+    $('#id').val(id);
+    $('#ConfirmDelete').modal('show');
+}
+
+function ActionDelete(){
+    var id = $('#id').val();
+    window.location = BASE_URL + "/role/delete/" + id;
+}
+
+</script>
+{{ asset('modules/tour/admin/datatable.js')|script_tag }}
+{% endblock %}

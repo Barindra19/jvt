@@ -1,0 +1,201 @@
+{% extends "admin::layouts.layout" %}
+
+{% block css_assets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">Home</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <ol class="breadcrumb">
+                <li class="active">Home</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if (call_helpers('bool_CheckUserRole','mitra')) %}
+        <div class="row">
+            <!-- BERITA -->
+            <div class="col-sm-8">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="text-primary">Berita Terkini</h4>
+                        <div class="infinite-scroll">
+                        {% for item_news in News %}
+                            <div class="panel panel-primary">
+                                <div class="panel-heading"><i class="ti-receipt"></i> {{ item_news.title }}
+                                    <div class="pull-right">
+                                        <a href="#" data-perform="panel-collapse"><i class="ti-plus"></i></a>
+                                    </div>
+                                </div>
+                                <div class="panel-wrapper collapse" aria-expanded="true">
+                                    <div class="panel-body">
+                                        {{ item_news.title | raw }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                            {{ News.links() | raw }}
+                        </div>
+
+                        {% if NewsCount > 5 %}
+                        <a href="javascript:void(0);" id="loadMore">Lihat lebih banyak</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- END BERITA -->
+            <!-- INFORMASI -->
+            <div class="col-sm-4">
+                <!-- SALDO -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="text-primary">Informasi</h4>
+                        <div class="panel panel-primary ">
+                            <div class="panel-heading"><i class="fa fa-money"></i> Saldo Anda
+                                <div class="pull-right">
+                                </div>
+                            </div>
+                            <div class="panel-wrapper collapse in" aria-expanded="true">
+                                <div class="panel-body">
+                                    <h2 class="text-primary" style="text-align: center"><i>Rp {{ MyWallet | number_format(0) }}</i></h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END SALDO -->
+                <!-- TRANSAKSI BULAN INI -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="panel panel-primary ">
+                            <div class="panel-heading"><i class=" ti-exchange-vertical"></i> Transaksi {{ call_helpers('get_DateNow','F') }}
+                                <div class="pull-right">
+                                </div>
+                            </div>
+                            <div class="panel-wrapper collapse in" aria-expanded="true">
+                                <div class="panel-body">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <tr>
+                                                <td class="text-primary"><strong>Tour</strong></td>
+                                                <td class="text-primary" align="right"><strong>Rp {{ 0 | number_format(0) }}</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-primary"><strong>Umroh</strong></td>
+                                                <td class="text-primary" align="right"><strong>Rp {{ 0 | number_format(0) }}</strong></td>
+                                            </tr>
+                                        </table>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END TRANSAKSI BULAN INI -->
+            </div>
+            <!-- END INFORMASI -->
+        </div>
+    {% elseif (call_helpers('bool_CheckUserRole','admin')) %}
+        <div class="row">
+            <div class="col-md-12 col-lg-12 col-sm-12">
+                <div class="white-box">
+                    <h3 class="text-primary"><i>Jumlah Mitra</i></h3>
+                    <hr>
+                    <div class="row row-in">
+                        <div class="col-lg-3 col-sm-6 row-in-br">
+                            <div class="col-in row">
+                                <div class="col-md-6 col-sm-6 col-xs-6"> <i data-icon="E" class="linea-icon linea-basic"></i>
+                                    <h5 class="text-muted vb">CABANG</h5>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <h3 class="counter text-right m-t-15 text-danger">{{ CountCabang }}</h3>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%"> <span class="sr-only">40% Complete (success)</span> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 row-in-br  b-r-none">
+                            <div class="col-in row">
+                                <div class="col-md-6 col-sm-6 col-xs-6"> <i class="linea-icon linea-basic" data-icon="&#xe01b;"></i>
+                                    <h5 class="text-muted vb">MD</h5>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <h3 class="counter text-right m-t-15 text-warning">{{ CountMD }}</h3>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%"> <span class="sr-only">40% Complete (success)</span> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6 row-in-br">
+                            <div class="col-in row">
+                                <div class="col-md-6 col-sm-6 col-xs-6"> <i class="linea-icon linea-basic" data-icon="&#xe00b;"></i>
+                                    <h5 class="text-muted vb">DISTRIBUTOR</h5>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <h3 class="counter text-right m-t-15 text-info">{{ CountDistributor }}</h3>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%"> <span class="sr-only">40% Complete (success)</span> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-6  b-0">
+                            <div class="col-in row">
+                                <div class="col-md-6 col-sm-6 col-xs-6"> <i class="linea-icon linea-basic" data-icon="&#xe016;"></i>
+                                    <h5 class="text-muted vb">AGEN</h5>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <h3 class="counter text-right m-t-15 text-success">{{ CountAgen }}</h3>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%"> <span class="sr-only">40% Complete (success)</span> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+
+
+
+{% endblock %}
+
+{% block addjs %}
+    <script>
+        var ProjectName = '{{ ProjectName }}';
+        var Description = '{{ Description }}';
+    </script>
+
+    <!--Counter js -->
+    {{ asset('plugins/waypoints/lib/jquery.waypoints.js') | script_tag }}
+    {{ asset('plugins/counterup/jquery.counterup.min.js') | script_tag }}
+
+    {{ asset('plugins/jscroll-master/jquery.jscroll.js') | script_tag }}
+
+    {{ asset('modules/home.js') | script_tag }}
+
+
+{% endblock %}

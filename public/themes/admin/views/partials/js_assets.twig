@@ -1,0 +1,23 @@
+<script>
+    window.Laravel = {{ {'csrfToken': csrf_token()}|json_encode()|raw }};
+    window.userid = {{ call_helpers('get_UsersInformation','id') }};
+    window.username = "{{ call_helpers('get_UsersInformation','name') }}";
+</script>
+
+
+{{ asset('plugins/jquery/dist/jquery.min.js') | script_tag }}
+
+<!-- Bootstrap Core JavaScript -->
+{{ theme_asset('admin::bootstrap/dist/js/tether.min.js')|script_tag }}
+{{ theme_asset('admin::bootstrap/dist/js/bootstrap.min.js')|script_tag }}
+{{ asset('plugins/bootstrap-extension/js/bootstrap-extension.min.js') | script_tag }}
+<!-- Menu Plugin JavaScript -->
+{{ asset('plugins/sidebar-nav/dist/sidebar-nav.min.js') | script_tag }}
+<!--slimscroll JavaScript -->
+{{ theme_asset('admin::js/jquery.slimscroll.js')|script_tag }}
+<!--Wave Effects -->
+{{ theme_asset('admin::js/waves.js')|script_tag }}
+<!-- Custom Theme JavaScript -->
+{{ theme_asset('admin::js/custom.min.js')|script_tag }}
+
+{{ asset('plugins/toast-master/js/jquery.toast.js') | script_tag }}

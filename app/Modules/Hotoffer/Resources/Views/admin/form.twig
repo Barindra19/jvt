@@ -1,0 +1,159 @@
+{% extends "admin::layouts.layout" %}
+
+{% block addcss %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/css/select2.min.css')| css_tag }}
+    {{ asset('plugins/select2/css/select2-bootstrap.min.css')| css_tag }}
+
+
+
+{% endblock %}
+
+{% block pageheader %}
+    <div class="row bg-title">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">{{ MenuActive }}</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <a href="{{ route('hotoffer_admin_show') }}" class="btn btn-danger pull-right m-l-20 btn-rounded btn-outline hidden-xs hidden-sm waves-effect waves-light"><i class="glyphicon glyphicon-plus"></i> Kembali</a>
+            <ol class="breadcrumb">
+                <li><a href="{{ url('/home') }}">Home</a></li>
+                <li><a href="{{ route('hotoffer_admin_show') }}">{{ MenuActive }}</a></li>
+                <li class="active">Tambah</li>
+            </ol>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+{% endblock %}
+
+
+{% block body %}
+    {% if (session('ScsMsg')) %}
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ScsMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('ErrMsg')) %}
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('ErrMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('InfoMsg')) %}
+        <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('InfoMsg') | raw }}
+        </div>
+    {% endif %}
+
+    {% if (session('WrngMsg')) %}
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{ session('WrngMsg') | raw }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title m-b-0">{{ MenuActive }}</h3>
+                <p class="text-muted m-b-30 font-13"> {{ MenuDescription | raw}} </p>
+                <hr>
+                <form class="form" action="{% if state == "add" %}{{ route('hotoffer_admin_post') }}{% else %}{{ route('hotoffer_admin_update') }}{% endif %}" name="form_{{ form_name }}" id="form_{{ form_name }}" method="post" data-toggle="validator">
+                    {{ csrf_field() }}
+
+                    <!-- REGION -->
+                    <div class="form-group {% if (errors.has('region')) %}has-danger{% endif %}">
+                        <label>Region <label class="text-danger">*</label></label>
+                        <select name="region" class="form-control select2" id="region">
+                            {% set ListRegion = call_helpers('get_ListRegion') %}
+                            {% for key,value in ListRegion %}
+                                <option value="{{ key }}" {{ old('region') == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if (errors.has('region')) %}<div class="form-control-feedback"> {{ errors.first('region') }} </div>{% endif %}
+                    </div>
+                    <!-- END REGION -->
+
+
+                    <!-- COUNTRY -->
+                    <div class="form-group {% if (errors.has('country')) %}has-danger{% endif %}">
+                        <label>Negara <label class="text-danger">*</label></label>
+                        <select name="country" class="form-control select2" id="country">
+                            <option value="0">Pilih Negara</option>
+                            {% if(state == 'search') %}
+                                {% set ListCountry = call_helpers('get_ListCountry',old('region')) %}
+                                {% for key,value in ListCountry %}
+                                    <option value="{{ key }}" {{ old('country') == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        {% if (errors.has('country')) %}<div class="form-control-feedback"> {{ errors.first('country') }} </div>{% endif %}
+                    </div>
+                    <!-- END COUNTRY -->
+
+                    <!-- DESTINATION -->
+                    <div class="form-group {% if (errors.has('destination')) %}has-danger{% endif %}">
+                        <label>Destinasi <label class="text-danger">*</label></label>
+                        <select name="destination" class="form-control select2" id="destination">
+                            <option value="0">Pilih Destinasi</option>
+                            {% if(state == 'search') %}
+                                {% set ListDestination = call_helpers_two('get_ListDestination',old('region'), old('country')) %}
+                                {% for key,value in ListDestination %}
+                                    <option value="{{ key }}" {{ old('destination') == key ? 'selected="selected"' : ''}}>{{ value }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        {% if (errors.has('destination')) %}<div class="form-control-feedback"> {{ errors.first('destination') }} </div>{% endif %}
+                    </div>
+                    <!-- END DESTINATION -->
+
+                    <!-- TOUR -->
+                    <div class="form-group {% if (errors.has('tour')) %}has-danger{% endif %}">
+                        <label>Tour <label class="text-danger">*</label></label>
+                        <select name="tour" class="form-control {% if (errors.has('tour')) %}form-control-danger{% endif %}" id="tour" required data-error="Masukan Tour">
+                        </select>
+                        <div class="help-block with-errors"></div>
+                        {% if (errors.has('tour')) %}<div class="form-control-feedback"> {{ errors.first('tour') }} </div>{% endif %}
+                    </div>
+                    <!-- END TOUR -->
+
+
+                    <!-- URUT -->
+                    <div class="form-group {% if (errors.has('order')) %}has-danger{% endif %}">
+                        <label>Urut</label>
+                        <input type="text" class="form-control {% if (errors.has('order')) %}form-control-danger{% endif %}" id="order" name="order" placeholder="Masukan Urutan" value="{% if state == 'add' %}{{ old('order') }}{% else %}{{ HotOffer.order }}{% endif %}" required data-error="Urut wajib diisi">
+                        {% if (errors.has('order')) %}<div class="form-control-feedback"> {{ errors.first('order') }} </div>{% endif %}
+                    </div>
+                    <!-- END URUT -->
+
+                    <hr>
+                    <button type="submit" class="btn btn-outline-primary btn-rounded"><i class="fa fa-save"></i> Simpan</button>
+                    <a href="{{ route('hotoffer_admin_show') }}" class="btn btn-outline-warning btn-rounded"><i class="fa fa-reply-all"></i> Batal</a>
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block addmodal %}
+
+{% endblock %}
+
+
+{% block addjs %}
+    <!-- DROPDOWN -->
+    {{ asset('plugins/select2/js/select2.full.min.js')| script_tag }}
+    {{ asset('js/select2/basic.js')|script_tag }}
+
+    {{ theme_asset('js/validator.js')|script_tag }}
+
+    {{ asset('modules/tour/admin/main.js')|script_tag }}
+    {{ asset('modules/opentrip/main.js')|script_tag }}
+
+
+{% endblock %}
